@@ -173,4 +173,73 @@ class Redis extends Driver
         return $this->handler->flushDB();
     }
 
+    public function lPush($key,$value){
+        return $this->handler->lPush($key,$value);
+    }
+
+    public function rPush($key,$value){
+        return $this->handler->rPush($key,$value);
+    }
+
+    public function lPop($key){
+        return $this->handler->lPop($key);
+    }
+
+    public function rPop($key){
+        return $this->handler->rPop($key);
+    }
+
+    public function lRange($key,$start,$end){
+        return $this->handler->lRange($key,$start,$end);
+    }
+
+    public function lGetRange($key,$start,$end){
+        return $this->handler->lGetRange($key,$start,$end);
+    }
+
+    public function sAdd($key,$value){
+        return $this->handler->sAdd($key,$value);
+    }
+
+    public function sPop($key){
+        return $this->handler->sPop($key);
+    }
+
+    public function hSet($key,$hashKey,$value){
+        return $this->handler->hSet($key,$hashKey,$value);
+    }
+
+    public function hGet($key,$hashKey){
+        return $this->handler->hGet($key,$hashKey);
+    }
+
+    public function hMSet($key,$hashKeys){
+        return $this->handler->hMset($key,$hashKeys);
+    }
+
+    public function hMGet($key,$hashKeys){
+        return $this->handler->hMGet($key,$hashKeys);
+    }
+
+    public function hKeys($key){
+        return $this->handler->hKeys($key);
+    }
+
+    public function hVals($key){
+        return $this->handler->hVals($key);
+    }
+
+    public function hGetAll($key){
+        return $this->handler->hGetAll($key);
+    }
+
+    public function hLen($key){
+        return $this->handler->hLen($key);
+    }
+
+    public function hDel($key,$hashKey){
+        return $this->handler->hDel($key,$hashKey);
+    }
+
+
 }

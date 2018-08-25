@@ -1,7 +1,9 @@
 <?php
 namespace app\index\controller;
+use think\Cache;
 use think\Controller;
 use think\Db;
+use think\cache\driver\Redis;
 use think\Loader;
 class Test extends Controller{
 
@@ -521,5 +523,23 @@ class Test extends Controller{
         $persons[] = $person;
 
         var_dump($persons);
+    }
+
+    public function testRedis(){
+        $redis = new Redis();
+        $bis_id = input('get.bis_id');
+        $res = model('Recommend')->getBanners($bis_id);
+        $redis_key = "test_banners_list".$bis_id;
+        $json = json_encode($res);
+        $redis->lpush($redis_key,$json);
+    }
+
+    public function testGetRedis(){
+        $redis = new Redis();
+        $bis_id = input('get.bis_id');
+        $redis_key = "test_banners_list".$bis_id;
+        $json = $redis->lpop($redis_key);
+        $res = json_decode($json,true);
+        print_r($res);
     }
 }
