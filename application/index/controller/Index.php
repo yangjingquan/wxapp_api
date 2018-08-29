@@ -2,14 +2,22 @@
 namespace app\index\controller;
 use think\Controller;
 use think\Db;
-use think\Loader;
+use think\cache\driver\Redis;
 class Index extends Controller{
 
     //获取首页bannger
     public function getBannersInfo(){
         //获取参数
         $bis_id = input('get.bis_id');
-        $res = model('Recommend')->getBanners($bis_id);
+        $redis = new Redis();
+        $redis_key = "banners_list_".$bis_id;
+        $res = $redis->get($redis_key);
+        if(!$res){
+            $res = model('Recommend')->getBanners($bis_id);
+            $json = json_encode($res);
+            $redis->set($redis_key,$json);
+        }
+
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res
@@ -21,7 +29,15 @@ class Index extends Controller{
     public function getRecommendProInfo(){
         //获取参数
         $bis_id = input('get.bis_id');
-        $res = model('Products')->getRecommendProInfo($bis_id);
+        $redis = new Redis();
+        $redis_key = "recommend_product_list_".$bis_id;
+        $res = $redis->get($redis_key);
+        if(!$res){
+            $res = model('Products')->getRecommendProInfo($bis_id);
+            $json = json_encode($res);
+            $redis->set($redis_key,$json);
+        }
+
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res
@@ -108,7 +124,14 @@ class Index extends Controller{
     public function getNewProInfo(){
         //获取参数
         $bis_id = input('get.bis_id');
-        $res = model('Products')->getNewProInfo($bis_id);
+        $redis = new Redis();
+        $redis_key = "new_product_list_".$bis_id;
+        $res = $redis->get($redis_key);
+        if(!$res){
+            $res = model('Products')->getNewProInfo($bis_id);
+            $json = json_encode($res);
+            $redis->set($redis_key,$json);
+        }
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res
@@ -646,14 +669,6 @@ class Index extends Controller{
 
         return $order_info;
     }
-
-    public function test(){
-        //cswx.dxshuju.com
-        echo base64_encode('store_domain').'</br>';
-        echo base64_encode('cswx.dxshuju.com-asdf');
-    }
-
-
 
     //***************以下是新的<生成openid>及<添加会员>接口*****************
 

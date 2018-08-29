@@ -531,15 +531,16 @@ class Test extends Controller{
         $res = model('Recommend')->getBanners($bis_id);
         $redis_key = "test_banners_list".$bis_id;
         $json = json_encode($res);
-        $redis->lpush($redis_key,$json);
+        $redis->set($redis_key,$json);
+        print_r($json);
     }
 
     public function testGetRedis(){
         $redis = new Redis();
         $bis_id = input('get.bis_id');
         $redis_key = "test_banners_list".$bis_id;
-        $json = $redis->lpop($redis_key);
-        $res = json_decode($json,true);
-        print_r($res);
+        $json = $redis->get($redis_key);
+        print_r($json);
+        die;
     }
 }
