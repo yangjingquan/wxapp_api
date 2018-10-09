@@ -721,8 +721,6 @@ class Index extends Controller{
 
             $up_where = "mem_id = '$openid'";
             Db::table('store_members')->where($up_where)->update($up_data);
-
-            //返回openid
             echo json_encode(array(
                 'openid'      => $openid,
                 'bis_id'   => $bis_id,

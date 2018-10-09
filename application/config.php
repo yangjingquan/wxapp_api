@@ -242,4 +242,5 @@ return [
         'var_page'  => 'page',
         'list_rows' => 15,
     ],
+    'token_salt' => 'siweishop_salt'
 ];
