@@ -310,7 +310,7 @@ class Products extends Model{
 
     //获取商品详情(一维规格)
     public function getProDetailOneDimensional($pro_id){
-        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,pro.brand,pro.pintuan_count,pro.jifen * 5 as jifen,i.thumb,i.image,i.config_image1,i.config_image2,i.config_image3,i.config_image4,pro.original_price,pro.associator_price,pro.pintuan_price,pro.wx_introduce,i.wx_config_image1,i.wx_config_image2,i.wx_config_image3,i.wx_config_image4,i.wx_config_image5,i.wx_config_image6,i.wx_config_image7,i.wx_config_image8,i.wx_config_image9,i.wx_config_image10')
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,pro.brand,pro.pintuan_count,pro.jifen * 5 as jifen,pro.mem_product,i.thumb,i.image,i.config_image1,i.config_image2,i.config_image3,i.config_image4,pro.original_price,pro.associator_price,pro.pintuan_price,pro.wx_introduce,i.wx_config_image1,i.wx_config_image2,i.wx_config_image3,i.wx_config_image4,i.wx_config_image5,i.wx_config_image6,i.wx_config_image7,i.wx_config_image8,i.wx_config_image9,i.wx_config_image10')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('pro.id = '.$pro_id)
             ->find();
@@ -403,6 +403,7 @@ class Products extends Model{
             'p_name' => $res['p_name'],
             'brand' => $res['brand'],
             'jifen' => $res['jifen'],
+            'mem_product' => $res['mem_product'],
             'pintuan_count' => $res['pintuan_count'],
             'original_price' => $res['original_price'],
             'associator_price' => $res['associator_price'],

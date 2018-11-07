@@ -17,7 +17,6 @@ class Index extends Controller{
             $json = json_encode($res);
             $redis->set($redis_key,$json);
         }
-
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res
@@ -29,15 +28,15 @@ class Index extends Controller{
     public function getRecommendProInfo(){
         //获取参数
         $bis_id = input('get.bis_id');
-        $redis = new Redis();
-        $redis_key = "recommend_product_list_".$bis_id;
-        $res = $redis->get($redis_key);
-        if(!$res){
-            $res = model('Products')->getRecommendProInfo($bis_id);
-            $json = json_encode($res);
-            $redis->set($redis_key,$json);
-        }
-
+//        $redis = new Redis();
+//        $redis_key = "recommend_product_list_".$bis_id;
+//        $res = $redis->get($redis_key);
+//        if(!$res){
+//            $res = model('Products')->getRecommendProInfo($bis_id);
+//            $json = json_encode($res);
+//            $redis->set($redis_key,$json);
+//        }
+        $res = model('Products')->getRecommendProInfo($bis_id);
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res
@@ -124,14 +123,15 @@ class Index extends Controller{
     public function getNewProInfo(){
         //获取参数
         $bis_id = input('get.bis_id');
-        $redis = new Redis();
-        $redis_key = "new_product_list_".$bis_id;
-        $res = $redis->get($redis_key);
-        if(!$res){
-            $res = model('Products')->getNewProInfo($bis_id);
-            $json = json_encode($res);
-            $redis->set($redis_key,$json);
-        }
+//        $redis = new Redis();
+//        $redis_key = "new_product_list_".$bis_id;
+//        $res = $redis->get($redis_key);
+//        if(!$res){
+//            $res = model('Products')->getNewProInfo($bis_id);
+//            $json = json_encode($res);
+//            $redis->set($redis_key,$json);
+//        }
+        $res = model('Products')->getNewProInfo($bis_id);
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res
