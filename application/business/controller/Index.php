@@ -54,6 +54,25 @@ class Index extends Controller{
         }
     }
 
+    //获取推荐餐饮店铺
+    public function getRecommendCatList(){
+        $res = model('Index')->getRecommendCatList();
+
+        if(!$res){
+            echo json_encode(array(
+                'statuscode'  => 0,
+                'message'     => '暂无数据'
+            ));
+            exit;
+        }else{
+            echo json_encode(array(
+                'statuscode'  => 1,
+                'result'      => $res
+            ));
+            exit;
+        }
+    }
+
     //获取餐饮推荐商城店铺
     public function getCatRecommendMallList(){
         $res = model('Index')->getCatRecommendMallList();
@@ -84,12 +103,15 @@ class Index extends Controller{
     }
 
     //获取附近店铺
-   public function getNearMallInfo(){
-       $res = model('Index')->getNearMallInfo();
-       echo json_encode(array(
-           'statuscode'  => 1,
-           'result'      => $res
-       ));
-       exit;
-   }
+    public function getNearMallInfo(){
+        $location = input('post.location');
+        $limit = 4;
+        $offset = 0;
+        $res = model('Index')->getNearMallsInfo($location,$limit,$offset);
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'result'      => $res
+        ));
+        exit;
+    }
 }

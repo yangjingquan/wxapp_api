@@ -32,6 +32,7 @@ class Index extends Model{
         return $res;
     }
 
+    ////获取推荐商城店铺
     public function getRecommendMallList(){
         $where = [
             'is_recommend'  => 1,
@@ -42,6 +43,34 @@ class Index extends Model{
         ];
 
         $res = Db::table('store_bis')->alias('bis')->field('id as bis_id,bis_name,thumb')
+            ->where($where)
+            ->order($order)
+            ->limit(8)
+            ->select();
+
+        if(!$res){
+            echo json_encode(array(
+                'statuscode'  => 0,
+                'message'     => '暂无数据'
+            ));
+            exit;
+        }
+
+        return $res;
+    }
+
+    //获取推荐餐饮店铺
+    public function getRecommendCatList(){
+        $where = [
+            'bis.is_recommend'  => 1,
+            'bis.status'  => 1
+        ];
+        $order = [
+            'bis.updated_time'  => 'desc'
+        ];
+
+        $res = Db::table('cy_bis')->alias('bis')->field('bis.id as bis_id,bis.bis_name,img.logo_image')
+            ->join('cy_bis_images img','img.bis_id = bis.id','left')
             ->where($where)
             ->order($order)
             ->limit(8)
@@ -106,23 +135,14 @@ class Index extends Model{
         return $c_name;
     }
 
-    public function getNearMallInfo(){
-        $where = [
-            'bis.is_recommend'  => 1,
-            'bis.status'  => 1,
-            'br.status'  => 1,
-        ];
-        $order = [
-            'bis.updated_time'  => 'desc'
-        ];
+    //获取附近店铺
+    public function getNearMallsInfo($curLocation,$limit,$offset){
+        //获取商城附近店铺
+        $mallRes = $this->getNearShopInfo($limit,$offset);
+        //获取附近餐饮店铺
+        $catRes = $this->getNearCatInfo($limit,$offset);
 
-        $res = Db::table('store_bis')->alias('bis')->field('bis.id as bis_id,bis.bis_name,bis.citys,bis.address,bis.thumb,br.brand_name')
-            ->join('store_brand br','br.bis_id = bis.id','left')
-            ->where($where)
-            ->order($order)
-            ->select();
-
-        if(!$res){
+        if(!$mallRes && !$catRes){
             echo json_encode(array(
                 'statuscode'  => 0,
                 'message'     => '暂无数据'
@@ -130,17 +150,75 @@ class Index extends Model{
             exit;
         }
 
+        //整理商城店铺信息
         $index = 0;
-        foreach($res as $item){
-            $citys = $item['citys'];
-            $citys = explode(',',$citys);
-            $provinceId = $citys[0];
-            $cityId = $citys[1];
-            $province = $this->getProvinceInfo($provinceId);
-            $city = $this->getCityInfo($cityId);
-            $res[$index]['address'] = $province.$city.$item['address'];
+        foreach($mallRes as $item){
+            $positions = $item['positions'];
+            $distanceJson = $this->execUrl($curLocation,$positions);
+            $distanceArr = json_decode($distanceJson,true);
+            $distance = $distanceArr['results'][0]['distance'];
+            $mallRes[$index]['distance'] = $distance >= 1000 ? round(($distance / 1000),1).'km' : $distance.'m';
             $index ++;
         }
+
+        //整理餐饮店铺信息
+        $ind = 0;
+        foreach($catRes as $item){
+            $location = $item['positions'];
+            $locationJson = $this->execUrl($curLocation,$location);
+            $locationArr = json_decode($locationJson,true);
+            $distance = $locationArr['results'][0]['distance'];
+            $catRes[$ind]['distance'] = $distance >= 1000 ? round(($distance / 1000),1).'km' : $distance.'m';
+            $ind ++;
+        }
+
+        $res = array_merge($mallRes,$catRes);
+
+        return $res;
+    }
+
+    public function execUrl($curLocation,$positions){
+        $url = "http://restapi.amap.com/v3/distance?key=4c9ea4c4b4f719f7e69d625586f8c00d&origins=".$curLocation."&destination=".$positions;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true) ; // 获取数据返回
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true) ; // 在启用 CURLOPT_RETURNTRANSFER 时候将获取数据返回
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $r = curl_exec($ch);
+        curl_close($ch);
+        return $r;
+    }
+
+    //获取商城附近店铺
+    public function getNearShopInfo($limit,$offset){
+        $where = "bis.status = 1 and (bis.positions <> null or bis.positions <> '')";
+        $order = [
+            'bis.updated_time'  => 'desc'
+        ];
+
+        $mallRes = Db::table('store_bis')->alias('bis')->field('bis.id as bis_id,bis.bis_name,bis.citys,bis.address,bis.thumb,bis.positions,bis.brand')
+            ->where($where)
+            ->order($order)
+            ->limit($offset,$limit)
+            ->select();
+
+        return $mallRes;
+    }
+
+    //获取商城餐饮店铺
+    public function getNearCatInfo($limit,$offset){
+        $where = "cbis.status = 1 and (cbis.positions <> null or cbis.positions <> '')";
+        $order = [
+            'cbis.updated_time'  => 'desc'
+        ];
+
+        $res = Db::table('cy_bis')->alias('cbis')->field("cbis.id as bis_id,cbis.bis_name,cbis.citys,cbis.address,img.logo_image as thumb,cbis.positions,'餐饮' as brand")
+            ->join('cy_bis_images img','img.bis_id = cbis.id','left')
+            ->where($where)
+            ->order($order)
+            ->limit($offset,$limit)
+            ->select();
+
         return $res;
     }
 
