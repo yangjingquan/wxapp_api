@@ -27,7 +27,7 @@ class Products extends Model{
     public function getRecProInfoMut(){
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen * 5 as jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
-            ->where('bis_id !=34 and pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
+            ->where('pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
             ->order('pro.update_time desc')
             ->limit(6)
             ->select();
