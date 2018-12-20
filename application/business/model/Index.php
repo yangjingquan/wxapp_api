@@ -158,6 +158,7 @@ class Index extends Model{
             $distanceArr = json_decode($distanceJson,true);
             $distance = $distanceArr['results'][0]['distance'];
             $mallRes[$index]['distance'] = $distance >= 1000 ? round(($distance / 1000),1).'km' : $distance.'m';
+            $mallRes[$index]['type'] = 1;
             $index ++;
         }
 
@@ -169,6 +170,7 @@ class Index extends Model{
             $locationArr = json_decode($locationJson,true);
             $distance = $locationArr['results'][0]['distance'];
             $catRes[$ind]['distance'] = $distance >= 1000 ? round(($distance / 1000),1).'km' : $distance.'m';
+            $catRes[$ind]['type'] = 2;
             $ind ++;
         }
 
@@ -177,6 +179,7 @@ class Index extends Model{
         return $res;
     }
 
+    //计算两点间距离
     public function execUrl($curLocation,$positions){
         $url = "http://restapi.amap.com/v3/distance?key=4c9ea4c4b4f719f7e69d625586f8c00d&origins=".$curLocation."&destination=".$positions;
         $ch = curl_init();
@@ -220,6 +223,61 @@ class Index extends Model{
             ->select();
 
         return $res;
+    }
+
+    //获取附近餐饮店铺
+    public function getNearCatList($curLocation,$limit,$offset){
+        $where = "cbis.status = 1 and (cbis.positions <> null or cbis.positions <> '')";
+        $order = [
+            'cbis.updated_time'  => 'desc'
+        ];
+
+        $res = Db::table('cy_bis')->alias('cbis')->field("cbis.id as bis_id,cbis.bis_name,cbis.citys,cbis.address,img.logo_image as thumb,cbis.positions,'餐饮' as brand")
+            ->join('cy_bis_images img','img.bis_id = cbis.id','left')
+            ->where($where)
+            ->order($order)
+            ->limit($offset,$limit)
+            ->select();
+
+        //整理餐饮店铺信息
+        $ind = 0;
+        foreach($res as $item){
+            $positions = $item['positions'];
+            $locationJson = $this->execUrl($curLocation,$positions);
+            $locationArr = json_decode($locationJson,true);
+            $distance = $locationArr['results'][0]['distance'];
+            $res[$ind]['distance'] = $distance >= 1000 ? round(($distance / 1000),1).'km' : $distance.'m';
+            $ind ++;
+        }
+
+        return $res;
+    }
+
+    //获取商城附近店铺
+    public function getNearShopList($curLocation,$limit,$offset){
+        $where = "bis.status = 1 and (bis.positions <> null or bis.positions <> '')";
+        $order = [
+            'bis.updated_time'  => 'desc'
+        ];
+
+        $mallRes = Db::table('store_bis')->alias('bis')->field('bis.id as bis_id,bis.bis_name,bis.citys,bis.address,bis.thumb,bis.positions,bis.brand')
+            ->where($where)
+            ->order($order)
+            ->limit($offset,$limit)
+            ->select();
+
+        //整理商城店铺信息
+        $index = 0;
+        foreach($mallRes as $item){
+            $positions = $item['positions'];
+            $distanceJson = $this->execUrl($curLocation,$positions);
+            $distanceArr = json_decode($distanceJson,true);
+            $distance = $distanceArr['results'][0]['distance'];
+            $mallRes[$index]['distance'] = $distance >= 1000 ? round(($distance / 1000),1).'km' : $distance.'m';
+            $index ++;
+        }
+
+        return $mallRes;
     }
 
 }

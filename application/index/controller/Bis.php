@@ -20,7 +20,7 @@ class Bis extends Controller{
         }
 
         $res = Db::table('store_bis')->field('id as bis_id,bis_name,thumb,is_pintuan')
-            ->where($where.' id !=34 and status = 1')
+            ->where($where.' status = 1')
             ->limit($offset,$limit)
             ->order('id desc')
             ->select();
