@@ -189,7 +189,7 @@ class Index extends Controller{
         $limit = 8;
         $offset = $limit * ($page - 1);
 
-        $res = Db::table('cy_bis')->alias('bis')->field("bis.id as bis_id,bis.bis_name,bis.address,bis.positions,img.logo_image")
+        $res = Db::table('cy_bis')->alias('bis')->field("bis.id as bis_id,bis.bis_name,bis.brand,bis.min_price,bis.distribution_fee,bis.address,bis.positions,img.logo_image")
             ->join('cy_bis_images img','img.bis_id = bis.id','left')
             ->where("bis.status = 1 and (bis.positions <> null or bis.positions <> '') ")
             ->limit($offset,$limit)
@@ -210,12 +210,72 @@ class Index extends Controller{
             $locationArr = json_decode($locationJson,true);
             $distance = $locationArr['results'][0]['distance'];
             $res[$ind]['distance'] = $distance >= 1000 ? round(($distance / 1000),1).'km' : $distance.'m';
+            $res[$ind]['activity_list'] = $this->getActivityListByBisId($val['bis_id']);
             $ind ++;
         }
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res,
             'has_more'    => $has_more
+        ));
+        exit;
+    }
+
+    //获取餐饮店铺优惠券列表
+    public function getActivityListByBisId($bisId){
+        $where = [
+            'bis_id'  => $bisId,
+            'status'  => 1,
+        ];
+        $res = Db::table('cy_activitys')->where($where)->order('type desc ,id asc')->select();
+        return $res;
+    }
+
+    //添加餐饮会员信息
+    public function addCatMembers(){
+        //获取参数
+        $param = input('post.');
+        $res = model('Index')->addCatMembers($param);
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'message'  => 'success'
+        ));
+        exit;
+    }
+
+    //添加商城会员信息
+    public function addMembers(){
+        //获取参数
+        $param = input('post.');
+        $res = model('Index')->addMembers($param);
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'message'  => 'success'
+        ));
+        exit;
+    }
+
+    //获取openid
+    public function getOpenId(){
+        //获取参数
+        $appid = input('post.appid');
+        $secret = input('post.secret');
+        $code = input('post.code');
+
+        $url = "https://api.weixin.qq.com/sns/jscode2session?appid=".$appid."&secret=".$secret."&js_code=".$code."&grant_type=authorization_code";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true) ; // 获取数据返回
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true) ; // 在启用 CURLOPT_RETURNTRANSFER 时候将获取数据返回
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $r = curl_exec($ch);
+        curl_close($ch);
+        $arr = json_decode($r,true);
+        $openid = $arr['openid'];
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'openid'  => $openid
         ));
         exit;
     }

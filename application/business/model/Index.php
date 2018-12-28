@@ -280,4 +280,121 @@ class Index extends Model{
         return $mallRes;
     }
 
+    //添加餐饮会员信息
+    public function addCatMembers($param){
+        //获取参数
+        $openid = !empty($param['openid']) ? $param['openid'] : '';
+        if(!$openid){
+            echo json_encode(array(
+                'statuscode'  => 0,
+                'message'     => '缺少参数'
+            ));
+            exit;
+        }
+
+        //查询会员表中是否存在此会员
+        $where = "mem_id = '$openid'";
+        $mem_res = Db::table('cy_members')->where($where)->select();
+        if($mem_res){
+            //设置更新数据
+            $up_data = [
+                'avatarUrl'  => $param['avatarUrl'],
+                'nickname'  => $param['nickname'],
+                'username'  => $param['username'],
+                'bis_id'  => $param['bis_id'],
+            ];
+
+            $up_where = "mem_id = '$openid'";
+            Db::table('cy_members')->where($up_where)->update($up_data);
+            echo json_encode(array(
+                'statuscode'      => $mem_res,
+                'message'     => '更新会员成功!'
+            ));
+            exit;
+        }
+
+        //设置数据
+        $data = [
+            'bis_id'  => $param['bis_id'],
+            'mem_id'  => $openid,
+            'avatarUrl'  => $param['avatarUrl'],
+            'nickname'  => $param['nickname'],
+            'username'  => $param['username'],
+            'create_time'  => date('Y-m-d H:i:s')
+        ];
+
+        //添加数据
+        $res = Db::table('cy_members')->insert($data);
+        if(!$res){
+            echo json_encode(array(
+                'statuscode'  => 0,
+                'message'     => '添加会员失败!'
+            ));
+            exit;
+        }
+
+        return $res;
+    }
+
+    //添加商城会员信息
+    public function addMembers($param){
+        //查询会员表中是否存在此会员
+        $openid = !empty($param['openid']) ? $param['openid'] : '';
+        if(!$openid){
+            echo json_encode(array(
+                'statuscode'  => 0,
+                'message'     => '缺少参数'
+            ));
+            exit;
+        }
+        $where = "mem_id = '$openid' and status = 1";
+        $mem_res = Db::table('store_members')->field('id,rec_id,create_time')->where($where)->find();
+
+        if($mem_res){
+            //设置更新数据
+            $up_data = [
+                'avatarUrl'  => $param['avatarUrl'],
+                'city'  => $param['city'],
+                'country'  => $param['country'],
+                'sex'  => $param['sex'],
+                'nickname'  => $param['nickname'],
+                'province'  => $param['province'],
+                'bis_id'  => $param['bis_id'],
+            ];
+
+            $up_where = "mem_id = '$openid'";
+            $res = Db::table('store_members')->where($up_where)->update($up_data);
+            echo json_encode(array(
+                'statuscode'      => $res,
+                'message'     => '更新成功'
+            ));
+            exit;
+        }else{
+            //设置数据
+            $data = [
+                'bis_id'  => $param['bis_id'],
+                'mem_id'  => $openid,
+                'username'  => $openid,
+                'truename'  => $openid,
+                'avatarUrl'  => $param['avatarUrl'],
+                'city'  => $param['city'],
+                'country'  => $param['country'],
+                'sex'  => $param['sex'],
+                'nickname'  => $param['nickname'],
+                'province'  => $param['province'],
+                'rec_id'  => 1,
+                'create_time'  => date('Y-m-d H:i:s')
+            ];
+
+            //添加数据
+            $res = Db::table('store_members')->insertGetId($data);
+
+            //返回openid
+            echo json_encode(array(
+                'statuscode'      => $res,
+                'message'     => '创建成功'
+            ));
+            exit;
+        }
+    }
 }
