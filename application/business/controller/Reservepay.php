@@ -6,7 +6,7 @@ use think\Loader;
 
 Loader::import('CanYin58WxPay.WxPayApi',EXTEND_PATH);
 
-class CyPay extends Controller{
+class Collectpay extends Controller{
 
     public function pay(){
         $param = input('post.');
@@ -25,7 +25,7 @@ class CyPay extends Controller{
         $trade_no = $this->getOutTradeInfoById($param['order_id'])['order_no'];
         $body = $param['body'];
         $total_fee = $this->getOutTradeInfoById($param['order_id'])['total_amount'];
-        $notify_url = $WxPayConfig::NOTIFY_URL;
+        $notify_url = $WxPayConfig::SY_NOTIFY_URL;
         $openid = $param['openid'];
         $wxOrderData = new \WxPayUnifiedOrder();
         $wxOrderData->SetOut_trade_no($trade_no);
@@ -41,6 +41,7 @@ class CyPay extends Controller{
     private function getPaySignature($order_id,$wxOrderData){
         //$wxOrder是微信返回的结果
         $wxOrder = \WxPayApi::unifiedOrder($wxOrderData);
+
         //判断代码
         if($wxOrder['return_code'] != 'SUCCESS' || $wxOrder['result_code'] != 'SUCCESS'){
             //存入日志(不管)
@@ -73,18 +74,18 @@ class CyPay extends Controller{
     //处理 prepay_id,把 prepay_id存入数据库
     private function recordPreOrder($order_id,$wxOrder){
         $data['prepay_id'] = $wxOrder['prepay_id'];
-        $res = Db::table('cy_main_orders')->where('id = '.$order_id)->update($data);
+        $res = Db::table('cy_pay_orders')->where('id = '.$order_id)->update($data);
     }
 
     //根据外部订单id获取相关信息
     public function getOutTradeInfoById($order_id){
-        $res = Db::table('cy_main_orders')->field('order_no,total_amount')->where('id = '.$order_id)->find();
+        $res = Db::table('cy_pay_orders')->field('order_no,total_amount')->where('id = '.$order_id)->find();
         return $res;
     }
 
     //支付回调
     public function receiveNotify(){
-        $notify = new CyWxNotify();
+        $notify = new Collectnostify();
         $notify->Handle();
     }
 
