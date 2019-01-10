@@ -10,7 +10,7 @@ class Pay extends Controller{
 
     public function pay(){
         $param = input('post.');
-        $res = $this->makeWxPreOrdser($param);
+        $res = $this->makeWxPreOrder($param);
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res
@@ -25,9 +25,10 @@ class Pay extends Controller{
         $trade_no = $this->getOutTradeInfoById($param['order_id'])['order_no'];
         $body = $param['body'];
         $total_fee = $this->getOutTradeInfoById($param['order_id'])['total_amount'];
-        $notify_url = $WxPayConfig::NOTIFY_URL;
+        $notify_url = $WxPayConfig::ORI_NOTIFY_URL;
         $openid = $param['openid'];
         $wxOrderData = new \WxPayUnifiedOrder();
+
         $wxOrderData->SetOut_trade_no($trade_no);
         $wxOrderData->SetBody($body);
         $wxOrderData->SetTotal_fee($total_fee * 100);

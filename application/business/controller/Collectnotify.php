@@ -14,7 +14,7 @@ use think\Log;
 
 Loader::import('CanYin58WxPay.WxPayApi',EXTEND_PATH);
 
-class SyWxNotify extends \WxPayNotify{
+class Collectnotify extends \WxPayNotify{
 
     public function NotifyProcess($data, &$msg){
         if($data['result_code'] == 'SUCCESS'){

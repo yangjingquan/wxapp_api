@@ -22,10 +22,11 @@ class Grouppay extends Controller{
     public function makeWxPreOrder($param){
         $WxPayConfig = new \WxPayConfig();
         //获取参数
-        $trade_no = $this->getOutTradeInfoById($param['order_id'])['order_no'];
+        $orderInfo = $this->getOutTradeInfoById($param['order_id']);
+        $trade_no = $orderInfo['order_no'];
         $body = $param['body'];
-        $total_fee = $this->getOutTradeInfoById($param['order_id'])['total_amount'];
-        $notify_url = $WxPayConfig::NOTIFY_URL;
+        $total_fee = $orderInfo['total_amount'];
+        $notify_url = $WxPayConfig::GROUP_NOTIFY_URL;
         $openid = $param['openid'];
         $wxOrderData = new \WxPayUnifiedOrder();
         $wxOrderData->SetOut_trade_no($trade_no);

@@ -21,6 +21,17 @@ class Product extends Controller{
         exit;
     }
 
+    //获取商品详情
+    public function getProDetail(){
+        $pro_id = input('post.pro_id');
+        $res = model('Products')->getProDetail($pro_id);
+        echo json_encode(array(
+            'statuscode' => 1,
+            'result'    => $res
+        ));
+        exit;
+    }
+
 
 }
 

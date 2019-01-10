@@ -279,4 +279,15 @@ class Index extends Controller{
         ));
         exit;
     }
+
+    //控制动态显示多用户小程序首页内容
+    public function indexPageSwitch(){
+        $show = 1;
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'showStatus'  => $show
+        ));
+        exit;
+    }
+
 }

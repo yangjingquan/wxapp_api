@@ -415,35 +415,47 @@ class ShoppingCart extends Model{
             $cart_res[$index]['transport_info'] = $transportInfo;
             $bisTransportTypeRes = $this->getBisTransportAbout($val);
             $bisTransportType = $bisTransportTypeRes['transport_type'];
+            $logistics_status = $bisTransportTypeRes['logistics_status'];
             $cart_res[$index]['transportType'] = $bisTransportType;
-            if($bisTransportType == 1){
-                if(count($transportInfo) == 0){
-                    $cart_res[$index]['showFreightView'] = false;
-                    $cart_res[$index]['total_amount'] = '0.00';
-                    $cart_res[$index]['transport_fee'] = '0.00';
-                    $cart_res[$index]['selected_transport_type'] = '';
-                    $cart_res[$index]['buttonUsable'] = true;
+            $cart_res[$index]['logistics_status'] = $logistics_status;
+            if($logistics_status == 1){
+                if($bisTransportType == 1){
+                    if(count($transportInfo) == 0){
+                        $cart_res[$index]['showFreightView'] = false;
+                        $cart_res[$index]['total_amount'] = '0.00';
+                        $cart_res[$index]['transport_fee'] = '0.00';
+                        $cart_res[$index]['selected_transport_type'] = '';
+                        $cart_res[$index]['buttonUsable'] = true;
+                    }else{
+                        $cart_res[$index]['showFreightView'] = true;
+                        $first_heavy = $transportInfo[0]['first_heavy'];
+                        $continue_heavy = $transportInfo[0]['continue_heavy'];
+                        $continue_stage = $transportInfo[0]['continue_stage'];
+                        $transport_fee = number_format($first_heavy + ($continue_heavy * (($total_weight - 1) / $continue_stage)),2,".","");
+                        $cart_res[$index]['transport_fee'] = $transport_fee;
+                        $total_amount = number_format(($pro_amount + $transport_fee),2,".","");
+                        $cart_res[$index]['total_amount'] = $total_amount;
+                        $cart_res[$index]['selected_transport_type'] = $transportInfo[0]['mode_id'];
+                        $cart_res[$index]['buttonUsable'] = false;
+                    }
                 }else{
-                    $cart_res[$index]['showFreightView'] = true;
-                    $first_heavy = $transportInfo[0]['first_heavy'];
-                    $continue_heavy = $transportInfo[0]['continue_heavy'];
-                    $continue_stage = $transportInfo[0]['continue_stage'];
-                    $transport_fee = number_format($first_heavy + ($continue_heavy * (($total_weight - 1) / $continue_stage)),2,".","");
-                    $cart_res[$index]['transport_fee'] = $transport_fee;
-                    $total_amount = number_format(($pro_amount + $transport_fee),2,".","");
+                    $ykj_price = $bisTransportTypeRes['ykj_price'];
+                    $total_amount = number_format(($pro_amount + $ykj_price),2,".","");
+                    $cart_res[$index]['showFreightView'] = false;
                     $cart_res[$index]['total_amount'] = $total_amount;
-                    $cart_res[$index]['selected_transport_type'] = $transportInfo[0]['mode_id'];
+                    $cart_res[$index]['transport_fee'] = $ykj_price;
+                    $cart_res[$index]['selected_transport_type'] = '';
                     $cart_res[$index]['buttonUsable'] = false;
                 }
             }else{
-                $ykj_price = $bisTransportTypeRes['ykj_price'];
-                $total_amount = number_format(($pro_amount + $ykj_price),2,".","");
+                $total_amount = number_format($pro_amount,2,".","");
                 $cart_res[$index]['showFreightView'] = false;
                 $cart_res[$index]['total_amount'] = $total_amount;
-                $cart_res[$index]['transport_fee'] = $ykj_price;
+                $cart_res[$index]['transport_fee'] = '0.00';
                 $cart_res[$index]['selected_transport_type'] = '';
                 $cart_res[$index]['buttonUsable'] = false;
             }
+
             $cart_res[$index]['selectedIndex'] = 0;
             $cart_res[$index]['showTransportFeeDetail'] = false;
             $index ++;
@@ -510,7 +522,7 @@ class ShoppingCart extends Model{
 
     //获取店铺的运费模式及一口价运费
     public function getBisTransportAbout($bis_id){
-        $res = Db::table('store_bis')->field('transport_type,ykj_price')->where('id = '.$bis_id)->find();
+        $res = Db::table('store_bis')->field('logistics_status,transport_type,ykj_price')->where('id = '.$bis_id)->find();
         return $res;
     }
 

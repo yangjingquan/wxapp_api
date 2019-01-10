@@ -76,5 +76,24 @@ class Products extends Model{
         return $res;
     }
 
+    //获取商品详情
+    public function getProDetail($pro_id){
+        $res = Db::table('cy_products')->alias('pro')->field('pro.*')
+            ->where("pro.id = $pro_id")
+            ->find();
+
+        if(!empty($res['detail_images'])){
+            $temp_detail_images = json_decode($res['detail_images'],true);
+            foreach($temp_detail_images as $item){
+                if(!empty($item)){
+                    $detail_images[] = $item;
+                }
+            }
+            $res['detail_images'] = $detail_images;
+        }
+
+        return $res;
+    }
+
 
 }

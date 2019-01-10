@@ -6,7 +6,7 @@ use think\Loader;
 
 Loader::import('CanYin58WxPay.WxPayApi',EXTEND_PATH);
 
-class CyPay extends Controller{
+class Caterpay extends Controller{
 
     public function pay(){
         $param = input('post.');
@@ -84,7 +84,7 @@ class CyPay extends Controller{
 
     //支付回调
     public function receiveNotify(){
-        $notify = new CyWxNotify();
+        $notify = new Caternotify();
         $notify->Handle();
     }
 

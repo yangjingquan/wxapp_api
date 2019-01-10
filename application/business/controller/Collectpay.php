@@ -85,7 +85,7 @@ class Collectpay extends Controller{
 
     //支付回调
     public function receiveNotify(){
-        $notify = new SyWxNotify();
+        $notify = new Collectnostify();
         $notify->Handle();
     }
 

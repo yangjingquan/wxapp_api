@@ -6,7 +6,7 @@ use think\Loader;
 
 Loader::import('CanYin58WxPay.WxPayApi',EXTEND_PATH);
 
-class Collectpay extends Controller{
+class Reservepay extends Controller{
 
     public function pay(){
         $param = input('post.');
@@ -24,8 +24,8 @@ class Collectpay extends Controller{
         //获取参数
         $trade_no = $this->getOutTradeInfoById($param['order_id'])['order_no'];
         $body = $param['body'];
-        $total_fee = $this->getOutTradeInfoById($param['order_id'])['total_amount'];
-        $notify_url = $WxPayConfig::SY_NOTIFY_URL;
+        $total_fee = $this->getOutTradeInfoById($param['order_id'])['deposit'];
+        $notify_url = $WxPayConfig::RESERVE_NOTIFY_URL;
         $openid = $param['openid'];
         $wxOrderData = new \WxPayUnifiedOrder();
         $wxOrderData->SetOut_trade_no($trade_no);
@@ -74,18 +74,18 @@ class Collectpay extends Controller{
     //处理 prepay_id,把 prepay_id存入数据库
     private function recordPreOrder($order_id,$wxOrder){
         $data['prepay_id'] = $wxOrder['prepay_id'];
-        $res = Db::table('cy_pay_orders')->where('id = '.$order_id)->update($data);
+        $res = Db::table('cy_pre_orders')->where('id = '.$order_id)->update($data);
     }
 
     //根据外部订单id获取相关信息
     public function getOutTradeInfoById($order_id){
-        $res = Db::table('cy_pay_orders')->field('order_no,total_amount')->where('id = '.$order_id)->find();
+        $res = Db::table('cy_pre_orders')->field('order_no,deposit')->where('id = '.$order_id)->find();
         return $res;
     }
 
     //支付回调
     public function receiveNotify(){
-        $notify = new Collectnostify();
+        $notify = new Reservenotify();
         $notify->Handle();
     }
 
