@@ -95,5 +95,34 @@ class Products extends Model{
         return $res;
     }
 
+    //获取推荐商品
+    public function getRecommendProInfo($bis_id){
+        if(empty($bis_id)){
+            return array();
+        }
+
+        $res = Db::table('cy_products')
+            ->where('bis_id = '.$bis_id.' and on_sale = 1 and status = 1 and is_recommend = 1')
+            ->order('update_time desc')
+            ->limit(8)
+            ->select();
+
+        return $res;
+    }
+
+    //获取推荐商品
+    public function getNewestProInfo($bis_id){
+        if(empty($bis_id)){
+            return array();
+        }
+
+        $res = Db::table('cy_products')
+            ->where('bis_id = '.$bis_id.' and on_sale = 1 and status = 1')
+            ->order('update_time desc')
+            ->limit(8)
+            ->select();
+
+        return $res;
+    }
 
 }

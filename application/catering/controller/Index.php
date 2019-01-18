@@ -58,4 +58,71 @@ class Index extends Controller{
         echo $r;
         die;
     }
+
+    //获取广告位
+    public function getAdsInfo(){
+        $bis_id = input('post.bis_id','0');
+        if(empty($bis_id)){
+            echo json_encode(array(
+                'statuscode'   => 1,
+                'result'      => array()
+            ));
+            exit;
+        }
+        $res = Db::table('cy_ads')
+            ->where('bis_id = '.$bis_id.' and status = 1')
+            ->order('listorder desc,id asc')
+            ->select();
+
+        echo json_encode(array(
+            'statuscode'   => 1,
+            'result'      => $res
+        ));
+        exit;
+    }
+
+    //获取推荐商品
+    public function getRecommendProInfo(){
+        $bis_id = input('get.bis_id','');
+        $res = model('Products')->getRecommendProInfo($bis_id);
+        echo json_encode(array(
+            'statuscode'   => 1,
+            'result'      => $res
+        ));
+        exit;
+    }
+
+    //获取最新商品
+    public function getNewestProInfo(){
+        $bis_id = input('get.bis_id','');
+        $res = model('Products')->getNewestProInfo($bis_id);
+        echo json_encode(array(
+            'statuscode'   => 1,
+            'result'      => $res
+        ));
+        exit;
+    }
+
+    //获取店家环境图片
+    public function getBisEnvInfo(){
+        $bis_id = input('get.bis_id','');
+        $res = Db::table('cy_bis_images')->where('bis_id = '.$bis_id)->find();
+        $tempArr = array();
+        !empty($res['env_image1']) ? array_push($tempArr,$res['env_image1']) : '';
+        !empty($res['env_image2']) ? array_push($tempArr,$res['env_image2']) : '';
+        !empty($res['env_image3']) ? array_push($tempArr,$res['env_image3']) : '';
+        !empty($res['env_image4']) ? array_push($tempArr,$res['env_image4']) : '';
+        !empty($res['env_image5']) ? array_push($tempArr,$res['env_image5']) : '';
+        !empty($res['env_image6']) ? array_push($tempArr,$res['env_image6']) : '';
+
+        $returnList = array(
+            'bis_id' => $res['bis_id'],
+            'env_info' => $tempArr
+        );
+        echo json_encode(array(
+            'statuscode'   => 1,
+            'result'      => $returnList
+        ));
+        exit;
+    }
 }

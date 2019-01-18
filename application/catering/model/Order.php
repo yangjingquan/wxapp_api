@@ -314,9 +314,9 @@ class Order extends Model{
     public function getReserveOrderInfo($param){
         //获取参数
         $wx_id = !empty($param['openid']) ? $param['openid'] : '';
-        $bis_id = !empty($param['bis_id']) ? $param['bis_id'] : '';
+//        $bis_id = !empty($param['bis_id']) ? $param['bis_id'] : '';
 
-        $where = "bis_id = ".$bis_id." and openid = '$wx_id' and status = 1 ";
+        $where = "openid = '$wx_id' and status = 1 ";
         $res = Db::table('cy_pre_orders')->field('id as order_id,date,time,type,link_man,order_status,create_time')
                 ->where($where)
                 ->order('create_time desc')
@@ -338,6 +338,9 @@ class Order extends Model{
                     break;
                 case 2:
                     $status_text =  '已取消';
+                    break;
+                case 3:
+                    $status_text =  '预定成功';
                     break;
                 default:
                     $status_text =  '预订成功';

@@ -28,7 +28,7 @@ class Reservenotify extends \WxPayNotify{
                 //比较微信返回的总金额和外部订单表内的总金额
                 if($out_order_info['deposit'] * 100 == $data['total_fee']){
                     //更改外部订单状态,记录流水号
-                    $order_status['order_status'] = 2;
+                    $order_status['order_status'] = 3;
                     $order_status['transaction_id'] = $data['transaction_id'];
                     $order_status['update_time'] = date('Y-m-d H:i:s');
                     $out_order_info = Db::table('cy_pre_orders')->where('order_no = '.$orderNo)->update($order_status);
