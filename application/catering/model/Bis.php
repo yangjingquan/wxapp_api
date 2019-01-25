@@ -7,7 +7,7 @@ class Bis extends Model{
     //获取店铺信息
     public function getBisInfo($bis_id){
         $res = Db::table('cy_bis')
-            ->field('bis_name,scope,business_time,min_price,link_tel,citys,address,lunch_box_fee,distribution_fee')
+            ->field('bis_name,scope,business_time,min_price,link_tel,citys,address,lunch_box_fee,distribution_fee,is_pay')
             ->where('id = '.$bis_id)
             ->find();
         return $res;
