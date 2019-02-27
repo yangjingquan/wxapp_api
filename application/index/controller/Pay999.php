@@ -8,6 +8,23 @@ Loader::import('WxPay999.WxPayApi',EXTEND_PATH);
 
 class Pay999 extends Controller{
 
+    public function __construct()
+    {
+        //获取参数
+        $param = input('post.');
+        if(empty($param)){
+            return true;
+        }
+        $bis_id = $param['bis_id'];
+        //获取db中配置内容
+        $cfgRes = Db::table('store_payment_config')->where('bis_id = '.$bis_id)->find();
+        //设置配置内容
+        $WxPayConfig = new \WxPayConfig();
+        $WxPayConfig::$appid = $cfgRes['appid'];
+        $WxPayConfig::$mch_id = $cfgRes['mchid'];
+        $WxPayConfig::$key = $cfgRes['key'];
+    }
+
     public function pay(){
         $param = input('post.');
         $res = $this->makeWxPreOrder($param);
@@ -22,9 +39,10 @@ class Pay999 extends Controller{
     public function makeWxPreOrder($param){
         $WxPayConfig = new \WxPayConfig();
         //获取参数
-        $trade_no = $this->getOutTradeInfoById($param['order_id'])['order_no'];
+        $tradeRes = $this->getOutTradeInfoById($param['order_id']);
+        $trade_no = $tradeRes['order_no'];
         $body = $param['body'];
-        $total_fee = $this->getOutTradeInfoById($param['order_id'])['total_amount'];
+        $total_fee = $tradeRes['total_amount'];
         $notify_url = $WxPayConfig::NOTIFY_URL;
         $openid = $param['openid'];
         $wxOrderData = new \WxPayUnifiedOrder();
@@ -39,33 +57,30 @@ class Pay999 extends Controller{
 
     //该方法内部调用微信预订单接口
     private function getPaySignature($order_id,$wxOrderData,$bis_id){
-        //获取appid,machid
-        $paymentInfo = $this->getPaymentInfo($bis_id);
         //$wxOrder是微信返回的结果
-        $wxOrder = \WxPayApi::unifiedOrder($wxOrderData,$paymentInfo);
+        $wxOrder = \WxPayApi::unifiedOrder($wxOrderData);
         //判断代码
         if($wxOrder['return_code'] != 'SUCCESS' || $wxOrder['result_code'] != 'SUCCESS'){
             //存入日志(不管)
         }
         $this->recordPreOrder($order_id,$wxOrder);
-        $signature = $this->sign($wxOrder,$bis_id);
+        $signature = $this->sign($wxOrder);
 
         return $signature;
     }
 
     //处理签名
-    private function sign($wxOrder,$bis_id){
+    private function sign($wxOrder){
         $jsApiPayData = new \WxPayJsApiPay();
-        //获取appid,machid
-        $paymentInfo = $this->getPaymentInfo($bis_id);
-        $jsApiPayData->SetAppid($paymentInfo['appid']);
+        $WxPayConfig = new \WxPayConfig();
+        $jsApiPayData->SetAppid($WxPayConfig::$appid);
         $jsApiPayData->SetTimeStamp((string)time());
         $rand = md5(time().mt_rand(0,1000));
         $jsApiPayData->SetNonceStr($rand);
         $jsApiPayData->SetPackage('prepay_id='.$wxOrder['prepay_id']);
         $jsApiPayData->SetSignType('md5');
 
-        $sign = $jsApiPayData->MakeSign($paymentInfo['key']);
+        $sign = $jsApiPayData->MakeSign();
         $rawValues = $jsApiPayData->GetValues();
         $rawValues['sign'] = $sign;
 
@@ -87,17 +102,8 @@ class Pay999 extends Controller{
 
     //支付回调
     public function receiveNotify(){
-        $dataa['param'] = '接口起始';
-        $dataa['create_time'] = date('Y-m-d H:i:s');
-        Db::table('store_tempTable')->insert($dataa);
         $notify = new WxNotify999();
         $notify->Handle();
-    }
-
-    //获取支付相关信息(appid,mchid,key)
-    public function getPaymentInfo($bis_id){
-        $res = Db::table('store_bis')->field('appid,mchid,key')->where('id = '.$bis_id)->find();
-        return $res;
     }
 
 }
