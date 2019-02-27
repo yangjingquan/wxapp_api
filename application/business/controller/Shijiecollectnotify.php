@@ -12,9 +12,9 @@ use think\Exception;
 use think\Loader;
 use think\Log;
 
-Loader::import('CanYin58WxPay.WxPayApi',EXTEND_PATH);
+Loader::import('RiZhaoShiJieWxPay.WxPayApi',EXTEND_PATH);
 
-class Collectnotify extends \WxPayNotify{
+class Shijiecollectnotify extends \WxPayNotify{
 
     public function NotifyProcess($data, &$msg){
         if($data['result_code'] == 'SUCCESS'){

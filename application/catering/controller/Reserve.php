@@ -54,6 +54,30 @@ class Reserve extends Controller{
         }
 
     }
+
+    //获取桌位类型信息
+    public function getTableTypeInfo(){
+        $bis_id = input('get.bis_id',0);
+        $res = Db::table('cy_reserve_table_info')
+            ->where('bis_id = '.$bis_id.' and status = 1')
+            ->order('created_at asc')
+            ->select();
+
+        $table_info = $deposit = array();
+        if(is_array($res)){
+            foreach($res as $val){
+                array_push($table_info,$val['table_name']);
+                array_push($deposit,$val['deposit']);
+            }
+        }
+
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'table_type'  => $table_info,
+            'deposit'  => $deposit
+        ));
+        exit;
+    }
 }
 
 

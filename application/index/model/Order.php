@@ -98,7 +98,7 @@ class Order extends Model{
 
         $where .= $con;
 
-        $res = Db::table('store_main_orders')->alias('main')->field('main.id as order_id,main.bis_id,bis.bis_name,bis.thumb,main.order_no,main.total_amount,main.order_status,main.express_no,mode.post_code,mode.post_mode,main.jifen')
+        $res = Db::table('store_main_orders')->alias('main')->field('main.id as order_id,main.bis_id,bis.bis_name,bis.thumb,main.order_no,main.total_amount,main.order_status,main.express_no,mode.post_code,mode.post_mode,main.jifen,bis.is_pay')
             ->join('store_post_mode mode','main.mode = mode.id','LEFT')
             ->join('store_bis bis','main.bis_id = bis.id','LEFT')
             ->where($where)
@@ -143,6 +143,7 @@ class Order extends Model{
             $result[$index]['post_code'] = $val['post_code'];
             $result[$index]['express_no'] = $val['express_no'];
             $result[$index]['post_mode'] = $val['post_mode'];
+            $result[$index]['is_pay'] = $val['is_pay'];
             if($val['jifen'] != 0){
                 if($val['total_amount'] < '0.01'){
                     $result[$index]['amount'] = $val['jifen'].'积分';

@@ -32,7 +32,7 @@ class Index extends Model{
         return $res;
     }
 
-    ////获取推荐商城店铺
+    //获取推荐商城店铺
     public function getRecommendMallList(){
         $where = [
             'is_recommend'  => 1,

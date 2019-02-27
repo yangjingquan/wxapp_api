@@ -418,6 +418,7 @@ class ShoppingCart extends Model{
             $logistics_status = $bisTransportTypeRes['logistics_status'];
             $cart_res[$index]['transportType'] = $bisTransportType;
             $cart_res[$index]['logistics_status'] = $logistics_status;
+
             if($logistics_status == 1){
                 if($bisTransportType == 1){
                     if(count($transportInfo) == 0){

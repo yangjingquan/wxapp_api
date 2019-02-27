@@ -12,9 +12,9 @@ use think\Exception;
 use think\Loader;
 use think\Log;
 
-Loader::import('CanYin58WxPay.WxPayApi',EXTEND_PATH);
+Loader::import('RiZhaoShiJieWxPay.WxPayApi',EXTEND_PATH);
 
-class Collectnotify extends \WxPayNotify{
+class Shijiereservenotify extends \WxPayNotify{
 
     public function NotifyProcess($data, &$msg){
         if($data['result_code'] == 'SUCCESS'){
@@ -24,13 +24,14 @@ class Collectnotify extends \WxPayNotify{
             $orderNo = $data['out_trade_no'];
             try{
                 //通过订单号查询外部订单信息(订单总金额)
-                $out_order_info = Db::table('cy_pay_orders')->field('total_amount')->where('order_no = '.$orderNo)->find();
+                $out_order_info = Db::table('cy_pre_orders')->field('deposit')->where('order_no = '.$orderNo)->find();
                 //比较微信返回的总金额和外部订单表内的总金额
-                if($out_order_info['total_amount'] * 100 == $data['total_fee']){
+                if($out_order_info['deposit'] * 100 == $data['total_fee']){
                     //更改外部订单状态,记录流水号
-                    $order_status['order_status'] = 2;
+                    $order_status['order_status'] = 3;
                     $order_status['transaction_id'] = $data['transaction_id'];
-                    $out_order_info = Db::table('cy_pay_orders')->where('order_no = '.$orderNo)->update($order_status);
+                    $order_status['update_time'] = date('Y-m-d H:i:s');
+                    $out_order_info = Db::table('cy_pre_orders')->where('order_no = '.$orderNo)->update($order_status);
                 }
                 return true;
             }catch(Exception $ex){

@@ -26,7 +26,7 @@ class Products extends Model{
         }
         $res = Db::table('cy_products')->alias('p')->field('p.id, p.p_name,p.original_price,p.sold,p.image')
             ->join('cy_category cat', 'p.cat_id = cat.id','LEFT')
-            ->where('p.cat_id = '.$cat_id .' and p.bis_id = '.$bis_id.$con.' and p.on_sale = 1')
+            ->where('p.cat_id = '.$cat_id .' and p.bis_id = '.$bis_id.$con.' and p.on_sale = 1 and p.status = 1')
             ->select();
         $index = 0;
         $res_info = array();
