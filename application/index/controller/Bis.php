@@ -20,7 +20,7 @@ class Bis extends Controller{
         }
 
         $res = Db::table('store_bis')->field('id as bis_id,bis_name,thumb,is_pintuan')
-            ->where($where.' id !=34 and status = 1')
+            ->where($where.' status = 1')
             ->limit($offset,$limit)
             ->order('id desc')
             ->select();
@@ -172,11 +172,17 @@ class Bis extends Controller{
     public function getBisIDByProId(){
         //获取参数
         $pro_id = input('post.pro_id');
-        $res = Db::table('store_products')->field('bis_id')->where('id = '.$pro_id)->find();
+        $res = Db::table('store_products')->alias('pro')->field('pro.bis_id,bis.is_pay')
+            ->join('store_bis bis','pro.bis_id = bis.id','left')
+            ->where('pro.id = '.$pro_id)
+            ->find();
+
         $bis_id = $res['bis_id'];
+        $is_pay = $res['is_pay'];
         echo json_encode(array(
             'statuscode'  => 1,
-            'bis_id'      => $bis_id
+            'bis_id'      => $bis_id,
+            'is_pay'      => $is_pay
         ));
         exit;
     }
@@ -224,7 +230,6 @@ class Bis extends Controller{
         //设置商家表数据
         $data = [
             'bis_name' => $param['bis_name'],
-            'cat_id' => $param['category'],
             'brand' => $param['brand'],
             'leader' => $param['leader'],
             'citys' => $p_id.','.$c_id,
@@ -235,7 +240,12 @@ class Bis extends Controller{
             'create_time' => date('Y-m-d H:i:s'),
         ];
 
-        $res = Db::table('store_bis')->insertGetId($data);
+        if($param['bis_type'] == 0){
+            $res = Db::table('store_bis')->insertGetId($data);
+        }else{
+            $res = Db::table('cy_bis')->insertGetId($data);
+        }
+
 
         if($res){
             $con = [
@@ -244,7 +254,12 @@ class Bis extends Controller{
                 'password'   => md5($param['password']),
                 'create_time'   => date('Y-m-d H:i:s')
             ];
-            $user_info = Db::table('store_bis_admin_users')->insert($con);
+            if($param['bis_type'] == 0){
+                $user_info = Db::table('store_bis_admin_users')->insert($con);
+            }else{
+                $user_info = Db::table('cy_bis_admin_users')->insert($con);
+            }
+
             if($user_info){
                 echo json_encode(array(
                     'scode'  => 1,

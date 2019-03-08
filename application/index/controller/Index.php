@@ -2,21 +2,13 @@
 namespace app\index\controller;
 use think\Controller;
 use think\Db;
-use think\cache\driver\Redis;
 class Index extends Controller{
 
     //获取首页bannger
     public function getBannersInfo(){
         //获取参数
         $bis_id = input('get.bis_id');
-        $redis = new Redis();
-        $redis_key = "banners_list_".$bis_id;
-        $res = $redis->get($redis_key);
-        if(!$res){
-            $res = model('Recommend')->getBanners($bis_id);
-            $json = json_encode($res);
-            $redis->set($redis_key,$json);
-        }
+        $res = model('Recommend')->getBanners($bis_id);
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res
@@ -28,14 +20,6 @@ class Index extends Controller{
     public function getRecommendProInfo(){
         //获取参数
         $bis_id = input('get.bis_id');
-//        $redis = new Redis();
-//        $redis_key = "recommend_product_list_".$bis_id;
-//        $res = $redis->get($redis_key);
-//        if(!$res){
-//            $res = model('Products')->getRecommendProInfo($bis_id);
-//            $json = json_encode($res);
-//            $redis->set($redis_key,$json);
-//        }
         $res = model('Products')->getRecommendProInfo($bis_id);
         echo json_encode(array(
             'statuscode'  => 1,
@@ -123,14 +107,6 @@ class Index extends Controller{
     public function getNewProInfo(){
         //获取参数
         $bis_id = input('get.bis_id');
-//        $redis = new Redis();
-//        $redis_key = "new_product_list_".$bis_id;
-//        $res = $redis->get($redis_key);
-//        if(!$res){
-//            $res = model('Products')->getNewProInfo($bis_id);
-//            $json = json_encode($res);
-//            $redis->set($redis_key,$json);
-//        }
         $res = model('Products')->getNewProInfo($bis_id);
         echo json_encode(array(
             'statuscode'  => 1,
@@ -514,7 +490,7 @@ class Index extends Controller{
     //获取店铺的运费模式
     public function getTransportType(){
         $bis_id = input('post.bis_id');
-        $res = Db::table('store_bis')->field('transport_type,ykj_price')->where('id = '.$bis_id)->find();
+        $res = Db::table('store_bis')->field('logistics_status,transport_type,ykj_price')->where('id = '.$bis_id)->find();
         echo json_encode(array(
             'statuscode'  => 1,
             'result'      => $res

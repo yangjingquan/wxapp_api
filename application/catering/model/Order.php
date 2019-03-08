@@ -9,9 +9,8 @@ class Order extends Model{
     public function getNormalOrderInfo($param){
         //获取参数
         $wx_id = !empty($param['openid']) ? $param['openid'] : '';
-        $bis_id = !empty($param['bis_id']) ? $param['bis_id'] : '';
         $type = !empty($param['type']) ? $param['type'] : 1;
-        $where = "main.bis_id = ".$bis_id." and main.mem_id = '$wx_id' and main.type = ".$type." and main.status = 1 ";
+        $where = "main.mem_id = '$wx_id' and main.type = ".$type." and main.status = 1 ";
 
 
         $res = Db::table('cy_main_orders')->alias('main')->field('main.id as order_id,main.total_amount,main.order_status,bis.bis_name')
@@ -40,6 +39,9 @@ class Order extends Model{
                 switch($val['order_status']){
                     case 1:
                         $status_text =  '已点餐';
+                        break;
+                    case 2:
+                        $status_text =  '已付款';
                         break;
                     default:
                         $status_text =  '已完成';
@@ -314,10 +316,10 @@ class Order extends Model{
     public function getReserveOrderInfo($param){
         //获取参数
         $wx_id = !empty($param['openid']) ? $param['openid'] : '';
-        $bis_id = !empty($param['bis_id']) ? $param['bis_id'] : '';
 
-        $where = "bis_id = ".$bis_id." and openid = '$wx_id' and status = 1 ";
-        $res = Db::table('cy_pre_orders')->field('id as order_id,date,time,type,link_man,order_status,create_time')
+        $where = "o.openid = '$wx_id' and o.status = 1 ";
+        $res = Db::table('cy_pre_orders')->alias('o')->field('o.id as order_id,o.date,time,o.type,o.link_man,o.order_status,o.create_time,bis.bis_name')
+                ->join('cy_bis bis','o.bis_id = bis.id','left')
                 ->where($where)
                 ->order('create_time desc')
                 ->select();
@@ -339,37 +341,15 @@ class Order extends Model{
                 case 2:
                     $status_text =  '已取消';
                     break;
+                case 3:
+                    $status_text =  '预定成功';
+                    break;
                 default:
                     $status_text =  '预订成功';
                     break;
             }
             $res[$index]['status_text'] = $status_text;
             $index ++;
-        }
-        $ind = 0;
-        foreach($res as $val){
-            switch($val['type']){
-                case 0:
-                    $type_text =  '二十人桌';
-                    break;
-                case 1:
-                    $type_text =  '十六人桌';
-                    break;
-                case 2:
-                    $type_text =  '十二人桌';
-                    break;
-                case 3:
-                    $type_text =  '十人桌';
-                    break;
-                case 4:
-                    $type_text =  '四人桌';
-                    break;
-                default:
-                    $type_text =  '两人桌';
-                    break;
-            }
-            $res[$ind]['type_text'] = $type_text;
-            $ind ++;
         }
         return $res;
     }

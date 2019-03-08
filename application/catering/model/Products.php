@@ -26,7 +26,7 @@ class Products extends Model{
         }
         $res = Db::table('cy_products')->alias('p')->field('p.id, p.p_name,p.original_price,p.sold,p.image')
             ->join('cy_category cat', 'p.cat_id = cat.id','LEFT')
-            ->where('p.cat_id = '.$cat_id .' and p.bis_id = '.$bis_id.$con.' and p.on_sale = 1')
+            ->where('p.cat_id = '.$cat_id .' and p.bis_id = '.$bis_id.$con.' and p.on_sale = 1 and p.status = 1')
             ->select();
         $index = 0;
         $res_info = array();
@@ -76,5 +76,53 @@ class Products extends Model{
         return $res;
     }
 
+    //获取商品详情
+    public function getProDetail($pro_id){
+        $res = Db::table('cy_products')->alias('pro')->field('pro.*')
+            ->where("pro.id = $pro_id")
+            ->find();
+
+        if(!empty($res['detail_images'])){
+            $temp_detail_images = json_decode($res['detail_images'],true);
+            foreach($temp_detail_images as $item){
+                if(!empty($item)){
+                    $detail_images[] = $item;
+                }
+            }
+            $res['detail_images'] = $detail_images;
+        }
+
+        return $res;
+    }
+
+    //获取推荐商品
+    public function getRecommendProInfo($bis_id){
+        if(empty($bis_id)){
+            return array();
+        }
+
+        $res = Db::table('cy_products')
+            ->where('bis_id = '.$bis_id.' and on_sale = 1 and status = 1 and is_recommend = 1')
+            ->order('update_time desc')
+            ->limit(8)
+            ->select();
+
+        return $res;
+    }
+
+    //获取推荐商品
+    public function getNewestProInfo($bis_id){
+        if(empty($bis_id)){
+            return array();
+        }
+
+        $res = Db::table('cy_products')
+            ->where('bis_id = '.$bis_id.' and on_sale = 1 and status = 1')
+            ->order('update_time desc')
+            ->limit(8)
+            ->select();
+
+        return $res;
+    }
 
 }
