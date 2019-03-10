@@ -1,11 +1,15 @@
 <?php
 namespace app\index\controller;
+use app\api\service\CheckService;
 use think\Cache;
 use think\Controller;
 use think\Db;
 use think\cache\driver\Redis;
+use think\Exception;
 use think\Loader;
-class Test extends Controller{
+use think\Log;
+
+class Test extends Base{
 
     //测试接口
     public function test(){
@@ -542,5 +546,26 @@ class Test extends Controller{
         $json = $redis->get($redis_key);
         print_r($json);
         die;
+    }
+
+    public function testException(){
+        echo phpinfo();
+        die;
+        try {
+
+            //业务处理 错误时抛出异常。
+            $age = '110';
+            CheckService::checkEmpty($age);
+            $res = [
+                'age' => $age,
+                'name'  => 'lilei'
+            ];
+            if ($age > 120) {
+                throw new Exception('年龄不能大于120岁。', 1001);
+            }
+        } catch (Exception $e) {
+            return $this->render(false,$e->getCode(),$e->getMessage(),$e->getFile(),$e->getLine());
+        }
+        return $this->render($res);
     }
 }

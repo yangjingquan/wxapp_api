@@ -15,7 +15,7 @@ return [
     // +----------------------------------------------------------------------
 
     // 应用调试模式
-    'app_debug'              => true,
+    'app_debug'              => false,
     // 应用Trace
     'app_trace'              => false,
     // 应用模式状态
@@ -242,5 +242,6 @@ return [
         'var_page'  => 'page',
         'list_rows' => 15,
     ],
-    'token_salt' => 'siweishop_salt'
+    'token_salt' => 'siweishop_salt',
+    'sys_crond_timer' => array('*', '*:i', 'H:i', '@-w H:i', '*-d H:i', 'm-d H:i', 'Y-m-d H:i'),
 ];
