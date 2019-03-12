@@ -6,8 +6,6 @@ use think\Controller;
 use think\Db;
 use think\cache\driver\Redis;
 use think\Exception;
-use think\Loader;
-use think\Log;
 
 class Test extends Base{
 
@@ -549,8 +547,6 @@ class Test extends Base{
     }
 
     public function testException(){
-        echo phpinfo();
-        die;
         try {
 
             //业务处理 错误时抛出异常。

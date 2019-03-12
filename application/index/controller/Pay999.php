@@ -17,7 +17,7 @@ class Pay999 extends Controller{
         }
         $bis_id = $param['bis_id'];
         //获取db中配置内容
-        $cfgRes = Db::table('store_payment_config')->where('bis_id = '.$bis_id)->find();
+        $cfgRes = Db::table('store_bis')->field('appid,mchid,key')->where('id = '.$bis_id)->find();
         //设置配置内容
         $WxPayConfig = new \WxPayConfig();
         $WxPayConfig::$appid = $cfgRes['appid'];
