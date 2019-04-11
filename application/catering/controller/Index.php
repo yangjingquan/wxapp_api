@@ -125,4 +125,15 @@ class Index extends Controller{
         ));
         exit;
     }
+
+    //获取店铺的运费模式
+    public function getTransportType(){
+        $bis_id = input('post.bis_id');
+        $res = Db::table('cy_bis')->field('logistics_status,transport_type,ykj_price')->where('id = '.$bis_id)->find();
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'result'      => $res
+        ));
+        exit;
+    }
 }

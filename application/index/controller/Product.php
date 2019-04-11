@@ -255,6 +255,28 @@ class Product extends Controller{
         ));
         exit;
     }
+
+    //获取积分商品列表(单用户版)
+    public function getJfProductInfo(){
+        //获取参数
+        $page = input('get.page',1,'intval');
+        $bis_id = input('get.bis_id',1,'intval');
+        $limit = 10;
+        $offset = $limit * ($page - 1);
+        $res = model('Products')->getJfProductInfo($bis_id,$limit,$offset);
+        $count = count($res);
+        if($count == $limit){
+            $has_more = true;
+        }else{
+            $has_more = false;
+        }
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'result'      => $res,
+            'has_more'    => $has_more
+        ));
+        exit;
+    }
 }
 
 

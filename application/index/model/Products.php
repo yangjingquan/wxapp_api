@@ -310,7 +310,7 @@ class Products extends Model{
 
     //获取商品详情(一维规格)
     public function getProDetailOneDimensional($pro_id){
-        $res = Db::table('store_products')->alias('pro')->field('pro.bis_id,pro.id as pro_id,pro.p_name,pro.brand,pro.pintuan_count,pro.jifen * 5 as jifen,pro.mem_product,i.thumb,i.image,i.config_image1,i.config_image2,i.config_image3,i.config_image4,pro.original_price,pro.associator_price,pro.pintuan_price,pro.wx_introduce,i.wx_config_image1,i.wx_config_image2,i.wx_config_image3,i.wx_config_image4,i.wx_config_image5,i.wx_config_image6,i.wx_config_image7,i.wx_config_image8,i.wx_config_image9,i.wx_config_image10')
+        $res = Db::table('store_products')->alias('pro')->field('pro.bis_id,pro.id as pro_id,pro.p_name,pro.brand,pro.pintuan_count,pro.jifen * 5 as jifen,i.thumb,i.image,i.config_image1,i.config_image2,i.config_image3,i.config_image4,pro.original_price,pro.associator_price,pro.pintuan_price,pro.wx_introduce,i.wx_config_image1,i.wx_config_image2,i.wx_config_image3,i.wx_config_image4,i.wx_config_image5,i.wx_config_image6,i.wx_config_image7,i.wx_config_image8,i.wx_config_image9,i.wx_config_image10')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('pro.id = '.$pro_id)
             ->find();
@@ -404,7 +404,6 @@ class Products extends Model{
             'p_name' => $res['p_name'],
             'brand' => $res['brand'],
             'jifen' => $res['jifen'],
-            'mem_product' => $res['mem_product'],
             'pintuan_count' => $res['pintuan_count'],
             'original_price' => $res['original_price'],
             'associator_price' => $res['associator_price'],
@@ -1265,6 +1264,34 @@ class Products extends Model{
             'config_info' => $guige_info,
             'des_images' => $des_images_info
         ];
+
+        return $result;
+    }
+
+    //获取积分商品列表(单用户版)
+    public function getJfProductInfo($bis_id,$limit,$offset){
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,ex_jifen,pro.supply_pro_id')
+            ->join('store_pro_images i','pro.id = i.p_id','LEFT')
+            ->where('pro.bis_id = '.$bis_id.' and pro.is_jf_product = 1 and pro.on_sale = 1 and pro.status = 1 and i.status = 1')
+            ->order('pro.update_time desc')
+            ->limit($offset,$limit)
+            ->select();
+
+        $ind = 0;
+        $result = array();
+        foreach($res as $val){
+            $result[$ind]['pro_id'] = $val['pro_id'];
+            $result[$ind]['p_name'] = $val['p_name'];
+            $result[$ind]['thumb'] = $val['thumb'];
+            $result[$ind]['original_price'] = $val['original_price'];
+            if($val['associator_price'] < '0.01'){
+                $result[$ind]['ex_jifen'] = $val['ex_jifen'].'积分';
+            }else{
+                $result[$ind]['ex_jifen'] = $val['ex_jifen'] .'积分' .' + '.$val['associator_price'] .'元';
+            }
+            $result[$ind]['is_supply_pro'] = !empty($val['supply_pro_id']) ? 1 : 0 ;
+            $ind ++;
+        }
 
         return $result;
     }

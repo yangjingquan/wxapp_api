@@ -5,6 +5,9 @@ use think\Db;
 
 class Order extends Model{
 
+    const ORI_ORDER_TYPE = 1;//普通订单类型
+    const JF_ORDER_TYPE = 2;//积分订单类型
+
     //获取订单信息(普通商城版)
     public function getOrderInfo($param){
         //获取参数
@@ -28,7 +31,7 @@ class Order extends Model{
         }
         $where .= $con;
 
-        $res = Db::table('store_main_orders')->alias('main')->field('main.id as order_id,main.order_no,main.total_amount,main.order_status,main.express_no,mode.post_code,mode.post_mode')
+        $res = Db::table('store_main_orders')->alias('main')->field('main.id as order_id,main.order_no,main.total_amount,main.order_status,main.express_no,mode.post_code,mode.post_mode,main.jifen')
             ->join('store_post_mode mode','main.mode = mode.id','LEFT')
             ->where($where)
             ->order('main.create_time desc')
@@ -69,6 +72,20 @@ class Order extends Model{
             $result[$index]['post_code'] = $val['post_code'];
             $result[$index]['express_no'] = $val['express_no'];
             $result[$index]['post_mode'] = $val['post_mode'];
+            if($val['jifen'] != 0){
+                if($val['total_amount'] < '0.01'){
+                    $result[$index]['amount'] = $val['jifen'].'积分';
+                    $result[$index]['order_type'] = 1;
+                }else{
+                    $result[$index]['amount'] = $val['jifen'].'积分'.' + ￥'.$val['total_amount'];
+                    $result[$index]['order_type'] = 2;
+                }
+
+            }else{
+                //普通订单
+                $result[$index]['order_type'] = 3;
+                $result[$index]['amount'] = '￥'.$val['total_amount'];
+            }
             $index ++;
         }
 
@@ -455,7 +472,8 @@ class Order extends Model{
             'secret'  => $secret,
             'update_time'  => $update_time,
             'order_status'  => 2,
-            'remark'  => $remark
+            'remark'  => $remark,
+            'order_type'  => self::ORI_ORDER_TYPE
         ];
 
         //向主表添加数据
@@ -526,6 +544,7 @@ class Order extends Model{
         $jifen_amount = !empty($param['jifen_amount']) ? $param['jifen_amount'] : '';
         $order_status = !empty($param['order_status']) ? $param['order_status'] : '';
         $remark = !empty($param['remark']) ? $param['remark'] : '';
+        $order_from = !empty($param['order_from']) ? $param['order_from'] : '';
         $pro_amount = !empty($param['pro_amount']) ? $param['pro_amount'] : '';
         $transport_fee = !empty($param['transport_fee']) ? $param['transport_fee'] : '';
         $selected_transport_type = !empty($param['selected_transport_type']) ? $param['selected_transport_type'] : '';
@@ -567,8 +586,9 @@ class Order extends Model{
             'secret'  => $secret,
             'update_time'  => $update_time,
             'order_status'  => $order_status,
-            'order_from'  => 2,
-            'remark'  => $remark
+            'order_from'  => $order_from,
+            'remark'  => $remark,
+            'order_type'  => self::JF_ORDER_TYPE
         ];
 
         if($order_status == 3){
