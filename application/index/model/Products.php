@@ -6,58 +6,37 @@ use think\Db;
 class Products extends Model{
     //获取推荐商品列表(单用户版)
     public function getRecommendProInfo($bis_id){
-        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen * 5 as jifen')
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
                 ->join('store_pro_images i','pro.id = i.p_id','LEFT')
                 ->where('pro.bis_id = '.$bis_id.' and pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
                 ->order('pro.update_time desc')
                 ->limit(6)
                 ->select();
 
-        $ind = 0;
-        foreach($res as $val){
-            $jifen = $val['jifen'];
-            $res[$ind]['jifen'] = floor($jifen);
-            $ind ++;
-        }
-
         return $res;
     }
 
     //获取推荐商品列表(多用户版)
     public function getRecProInfoMut(){
-        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen * 5 as jifen')
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
             ->order('pro.update_time desc')
             ->limit(6)
             ->select();
 
-        $ind = 0;
-        foreach($res as $val){
-            $jifen = $val['jifen'];
-            $res[$ind]['jifen'] = floor($jifen);
-            $ind ++;
-        }
-
         return $res;
     }
 
     //获取推荐商品列表(多用户普通商城版)
     public function getRecProInfo($limit,$offset){
-        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen * 5 as jifen')
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->join('store_bis bis','pro.bis_id = bis.id','LEFT')
             ->where('bis.is_pintuan = 0 and pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
             ->order('pro.update_time desc')
             ->limit($offset,$limit)
             ->select();
-
-        $ind = 0;
-        foreach($res as $val){
-            $jifen = $val['jifen'];
-            $res[$ind]['jifen'] = floor($jifen);
-            $ind ++;
-        }
 
         return $res;
     }
@@ -98,19 +77,12 @@ class Products extends Model{
 
     //获取新品列表(单用户版)
     public function getNewProInfo($bis_id){
-        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen * 5 as jifen')
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
                 ->join('store_pro_images i','pro.id = i.p_id','LEFT')
                 ->where('pro.bis_id = '.$bis_id.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
                 ->order('pro.create_time desc')
                 ->limit(8)
                 ->select();
-
-        $ind = 0;
-        foreach($res as $val){
-            $jifen = $val['jifen'];
-            $res[$ind]['jifen'] = floor($jifen);
-            $ind ++;
-        }
 
         $count = Db::table('store_products')->alias('pro')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
@@ -145,19 +117,12 @@ class Products extends Model{
 
     //获取新品列表(多用户版)
     public function getNewProInfoMut(){
-        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen * 5 as jifen')
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('bis_id !=34 and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
             ->order('pro.create_time desc')
             ->limit(8)
             ->select();
-
-        $ind = 0;
-        foreach($res as $val){
-            $jifen = $val['jifen'];
-            $res[$ind]['jifen'] = floor($jifen);
-            $ind ++;
-        }
 
         $count = Db::table('store_products')->alias('pro')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
@@ -310,12 +275,10 @@ class Products extends Model{
 
     //获取商品详情(一维规格)
     public function getProDetailOneDimensional($pro_id){
-        $res = Db::table('store_products')->alias('pro')->field('pro.bis_id,pro.id as pro_id,pro.p_name,pro.brand,pro.pintuan_count,pro.jifen * 5 as jifen,i.thumb,i.image,i.config_image1,i.config_image2,i.config_image3,i.config_image4,pro.original_price,pro.associator_price,pro.pintuan_price,pro.wx_introduce,i.wx_config_image1,i.wx_config_image2,i.wx_config_image3,i.wx_config_image4,i.wx_config_image5,i.wx_config_image6,i.wx_config_image7,i.wx_config_image8,i.wx_config_image9,i.wx_config_image10')
+        $res = Db::table('store_products')->alias('pro')->field('pro.bis_id,pro.id as pro_id,pro.p_name,pro.brand,pro.pintuan_count,pro.jifen,i.thumb,i.image,i.config_image1,i.config_image2,i.config_image3,i.config_image4,pro.original_price,pro.associator_price,pro.pintuan_price,pro.wx_introduce,i.wx_config_image1,i.wx_config_image2,i.wx_config_image3,i.wx_config_image4,i.wx_config_image5,i.wx_config_image6,i.wx_config_image7,i.wx_config_image8,i.wx_config_image9,i.wx_config_image10')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('pro.id = '.$pro_id)
             ->find();
-
-        $res['jifen'] = floor($res['jifen']);
 
         //设置详情页轮播图
         $images_info = array();
@@ -450,7 +413,7 @@ class Products extends Model{
         $limit = 10;
         $offset = ($page - 1) * $limit;
         $order = "pro.update_time desc";
-        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen * 5 as jifen')
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('bis_id !=34 and pro.cat1_id = '.$cat1_id.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
             ->order($order)
@@ -462,13 +425,6 @@ class Products extends Model{
                 'message'      => '暂无数据'
             ));
             exit;
-        }
-
-        $ind = 0;
-        foreach($res as $val){
-            $jifen = $val['jifen'];
-            $res[$ind]['jifen'] = floor($jifen);
-            $ind ++;
         }
 
         return $res;
@@ -608,7 +564,7 @@ class Products extends Model{
         $limit = 10;
         $offset = ($page - 1) * $limit;
         $order = "pro.update_time desc";
-        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen * 5 as jifen')
+        $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where($con.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
             ->order($order)
@@ -621,13 +577,6 @@ class Products extends Model{
                 'message'      => '暂无数据'
             ));
             exit;
-        }
-
-        $ind = 0;
-        foreach($res as $val){
-            $jifen = $val['jifen'];
-            $res[$ind]['jifen'] = floor($jifen);
-            $ind ++;
         }
 
         return $res;

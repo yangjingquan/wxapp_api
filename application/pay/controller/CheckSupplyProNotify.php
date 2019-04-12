@@ -28,6 +28,16 @@ class CheckSupplyProNotify extends \WxPayNotify{
 
                 $mainId = $outMainOrderInfo['id'];
                 $totalAmount = $outMainOrderInfo['total_amount'];
+                $openId = $outMainOrderInfo['mem_id'];
+                $orderType = $outMainOrderInfo['order_type'];
+
+                if($orderType == 1){
+                    //普通商品购买后，增加对应积分
+                    $this->addJifen($mainId,$orderNo,$openId);
+                }else{
+                    //积分商城购买后减去订单产生的积分
+                    $this->subJifen($mainId,$orderNo,$openId);
+                }
 
                 //副订单表数据
                 $outSubOrderInfo = Db::table('store_sub_orders')->alias('sub')->field('sub.id as subId,pro.id as proId,pro.supply_pro_id')
@@ -145,5 +155,52 @@ class CheckSupplyProNotify extends \WxPayNotify{
         $where = "id in ('".$subIds."')";
         $res = Db::table('store_sub_orders')->where($where)->update($data);
         return $res;
+    }
+
+    //积分商城支付后，减去对应的积分
+    public function subJifen($order_id,$order_no,$openid){
+        //查询该订单产生的积分
+        $jifen = Db::table('store_sub_orders')->alias('sub')->field('pro.id as pro_id')
+            ->join('store_pro_config con','sub.pro_id = con.id','LEFT')
+            ->where('sub.main_id='.$order_id)
+            ->SUM('con.ex_jifen * sub.count');
+
+        //更新会员积分
+        $mem_where = "mem_id = '$openid' and status = 1";
+        Db::table('store_members')->where($mem_where)->setDec('jifen',$jifen);
+
+        //生成积分明细记录
+        $jf_data = [
+            'mem_id'  => $openid,
+            'changed_jifen'  => $jifen,
+            'type'  => 2,
+            'remark'  => $order_no,
+            'create_time'  => date('Y-m-d H:i:s'),
+        ];
+        Db::table('store_jifen_detailed')->insert($jf_data);
+    }
+
+    //付款成功后添加积分
+    public function addJifen($order_id,$order_no,$openid){
+        //查询该订单产生的积分
+        $jifen = Db::table('store_sub_orders')->alias('sub')->field('pro.id as pro_id')
+            ->join('store_pro_config con','sub.pro_id = con.id','LEFT')
+            ->join('store_products pro','con.pro_id = pro.id','LEFT')
+            ->where('sub.main_id='.$order_id)
+            ->SUM('pro.jifen * sub.count');
+
+        //更新会员积分
+        $mem_where = "mem_id = '$openid' and status = 1";
+        Db::table('store_members')->where($mem_where)->setInc('jifen',$jifen);
+
+        //生成积分明细记录
+        $jf_data = [
+            'mem_id'  => $openid,
+            'changed_jifen'  => $jifen,
+            'type'  => 1,
+            'remark'  => $order_no,
+            'create_time'  => date('Y-m-d H:i:s'),
+        ];
+        Db::table('store_jifen_detailed')->insert($jf_data);
     }
 }

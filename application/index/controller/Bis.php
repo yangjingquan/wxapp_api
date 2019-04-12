@@ -2,6 +2,7 @@
 namespace app\index\controller;
 use think\Controller;
 use think\Db;
+use think\Exception;
 
 class Bis extends Controller{
 
@@ -393,47 +394,44 @@ class Bis extends Controller{
         exit;
     }
 
-    //付款成功后添加积分(多用户版普通商城支付成功后)
+    //付款成功后添加积分
     public function editJifenOrg(){
         //接收参数
         $order_id = input('post.order_id');
         $openid = input('post.openid');
-        $bis_id = input('post.bis_id');
-        //查询该订单产生的积分
-        $jifen = Db::table('store_sub_orders')->alias('sub')->field('pro.id as pro_id')
-            ->join('store_pro_config con','sub.pro_id = con.id','LEFT')
-            ->join('store_products pro','con.pro_id = pro.id','LEFT')
-            ->where('sub.main_id='.$order_id)
-            ->SUM('pro.jifen');
 
-        //获取订单号
-        $order_res = Db::table('store_main_orders')->alias('main')->field('main.order_no')
-            ->where('main.id='.$order_id)
-            ->find();
+        Db::startTrans();
+        try{
+            //查询该订单产生的积分
+            $jifen = Db::table('store_sub_orders')->alias('sub')->field('pro.id as pro_id')
+                ->join('store_pro_config con','sub.pro_id = con.id','LEFT')
+                ->join('store_products pro','con.pro_id = pro.id','LEFT')
+                ->where('sub.main_id='.$order_id)
+                ->SUM('pro.jifen * sub.count');
 
-        //更新会员积分
-        $mem_where = "mem_id = '$openid' and status = 1";
-        $mem_res = Db::table('store_members')->field('jifen')->where($mem_where)->find();
-        $mem_jifen = $mem_res['jifen'];
-        $new_mem_jifen['jifen'] = $mem_jifen + $jifen * 5;
-        $new_mem_res = Db::table('store_members')->where($mem_where)->update($new_mem_jifen);
+            //获取订单号
+            $order_res = Db::table('store_main_orders')->alias('main')->field('main.order_no')
+                ->where('main.id='.$order_id)
+                ->find();
 
-        //更新商家积分
-        $bis_where = "id = $bis_id and status = 1";
-        $bis_res = Db::table('store_bis')->field('jifen')->where($bis_where)->find();
-        $bis_jifen = $bis_res['jifen'];
-        $new_bis_jifen['jifen'] = $bis_jifen + $jifen * 2;
-        $new_bis_res = Db::table('store_bis')->where($bis_where)->update($new_bis_jifen);
+            //更新会员积分
+            $mem_where = "mem_id = '$openid' and status = 1";
+            Db::table('store_members')->where($mem_where)->setInc('jifen',$jifen);
 
-        //生成积分明细记录
-        $jf_data = [
-            'mem_id'  => $openid,
-            'changed_jifen'  => $jifen * 5,
-            'type'  => 1,
-            'remark'  => $order_res['order_no'],
-            'create_time'  => date('Y-m-d H:i:s'),
-        ];
-        $ji_res = Db::table('store_jifen_detailed')->insert($jf_data);
+            //生成积分明细记录
+            $jf_data = [
+                'mem_id'  => $openid,
+                'changed_jifen'  => $jifen,
+                'type'  => 1,
+                'remark'  => $order_res['order_no'],
+                'create_time'  => date('Y-m-d H:i:s'),
+            ];
+            Db::table('store_jifen_detailed')->insert($jf_data);
+            Db::commit();
+        }catch (Exception $e){
+            Db::rollback();
+        }
+
 
         echo json_encode(array(
             'statuscode'  => 1,
@@ -535,8 +533,8 @@ class Bis extends Controller{
         $limit = 10;
         $offset = $limit * ($page - 1);
 
-        $where1 = "mem_id = '$openid' and status = 1";
-        $jf_res = Db::table('store_members')->field('jifen')->where($where1)->find();
+        $where = "mem_id = '$openid' and status = 1";
+        $jf_res = Db::table('store_members')->field('jifen')->where($where)->find();
         $jifen = $jf_res['jifen'];
 
         $where = "mem_id = '$openid' and status = 1";

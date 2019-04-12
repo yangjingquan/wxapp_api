@@ -295,14 +295,15 @@ class ShoppingCart extends Model
             ->join('cy_mall_products pro', 'con.pro_id = pro.id', 'LEFT')
             ->join('cy_mall_pro_images img', 'img.p_id = pro.id', 'LEFT')
             ->where($where)
-            ->find();
+            ->select();
 
-        if ($pro_res['associator_price'] < '0.01') {
-            $pro_res['jf_price'] = $pro_res['ex_jifen'] . '积分';
-        } else {
-            $pro_res['jf_price'] = $pro_res['ex_jifen'] . '积分' . ' + ' . $pro_res['associator_price'] . '元';
+        foreach ($pro_res as &$item){
+            if ($item['associator_price'] < '0.01') {
+                $item['jf_price'] = $item['ex_jifen'] . '积分';
+            } else {
+                $item['jf_price'] = $item['ex_jifen'] . '积分' . ' + ' . $item['associator_price'] . '元';
+            }
         }
-
 
         $jifen_amount = Db::table('cy_shopping_carts')->alias('carts')
             ->join('cy_mall_pro_config con', 'carts.pro_id = con.id', 'LEFT')
