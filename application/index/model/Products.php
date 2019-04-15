@@ -9,7 +9,7 @@ class Products extends Model{
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
                 ->join('store_pro_images i','pro.id = i.p_id','LEFT')
                 ->where('pro.bis_id = '.$bis_id.' and pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
-                ->order('pro.update_time desc')
+                ->order('pro.listorder desc,pro.create_time desc')
                 ->limit(6)
                 ->select();
 
@@ -21,7 +21,7 @@ class Products extends Model{
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
-            ->order('pro.update_time desc')
+            ->order('pro.listorder desc,pro.create_time desc')
             ->limit(6)
             ->select();
 
@@ -34,7 +34,7 @@ class Products extends Model{
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->join('store_bis bis','pro.bis_id = bis.id','LEFT')
             ->where('bis.is_pintuan = 0 and pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
-            ->order('pro.update_time desc')
+            ->order('pro.listorder desc,pro.create_time desc')
             ->limit($offset,$limit)
             ->select();
 
@@ -46,7 +46,7 @@ class Products extends Model{
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.pintuan_price,pro.associator_price,pro.pintuan_count')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('pro.bis_id = '.$bis_id.' and pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
-            ->order('pro.update_time desc')
+            ->order('pro.listorder desc,pro.create_time desc')
             ->limit($offset,$limit)
             ->select();
         return $res;
@@ -58,7 +58,7 @@ class Products extends Model{
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->join('store_bis bis','pro.bis_id = bis.id','LEFT')
             ->where('bis_id !=34 and bis.is_pintuan = 1 and pro.on_sale = 1 and pro.is_recommend = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
-            ->order('pro.update_time desc')
+            ->order('pro.listorder desc,pro.create_time desc')
             ->limit($offset,$limit)
             ->select();
         return $res;
@@ -80,7 +80,7 @@ class Products extends Model{
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
                 ->join('store_pro_images i','pro.id = i.p_id','LEFT')
                 ->where('pro.bis_id = '.$bis_id.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
-                ->order('pro.create_time desc')
+                ->order('pro.listorder desc,pro.create_time desc')
                 ->limit(8)
                 ->select();
 
@@ -120,7 +120,7 @@ class Products extends Model{
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('bis_id !=34 and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
-            ->order('pro.create_time desc')
+            ->order('pro.listorder desc,pro.create_time desc')
             ->limit(8)
             ->select();
 
@@ -387,7 +387,7 @@ class Products extends Model{
         $page = !empty($param['page']) ? $param['page'] : 1;
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('pro.defined_cat1_id = '.$cat1_id.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
@@ -412,7 +412,7 @@ class Products extends Model{
         $page = !empty($param['page']) ? $param['page'] : 1;
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('bis_id !=34 and pro.cat1_id = '.$cat1_id.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
@@ -437,7 +437,7 @@ class Products extends Model{
         $page = !empty($param['page']) ? $param['page'] : 1;
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.pintuan_price,pro.pintuan_count,pro.associator_price')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where('pro.defined_cat1_id = '.$cat1_id.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
@@ -462,7 +462,7 @@ class Products extends Model{
         $page = !empty($param['page']) ? $param['page'] : 1;
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
 
         $res = Db::table('store_products')->alias('pro')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
@@ -482,7 +482,7 @@ class Products extends Model{
         $page = !empty($param['page']) ? $param['page'] : 1;
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
 
         $res = Db::table('store_products')->alias('pro')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
@@ -502,7 +502,7 @@ class Products extends Model{
         $page = !empty($param['page']) ? $param['page'] : 1;
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
 
         $res = Db::table('store_products')->alias('pro')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
@@ -530,7 +530,7 @@ class Products extends Model{
 
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where($con.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
@@ -563,7 +563,7 @@ class Products extends Model{
 
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price,pro.jifen')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where($con.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
@@ -597,7 +597,7 @@ class Products extends Model{
 
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.pintuan_price,pro.pintuan_count,pro.associator_price')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where($con.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
@@ -630,7 +630,7 @@ class Products extends Model{
 
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where($con.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
@@ -657,7 +657,7 @@ class Products extends Model{
 
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')->field('pro.id as pro_id,pro.p_name,i.thumb,pro.original_price,pro.associator_price')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where($con.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')
@@ -684,7 +684,7 @@ class Products extends Model{
 
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        $order = "pro.update_time desc";
+        $order = "pro.listorder desc,pro.create_time desc";
         $res = Db::table('store_products')->alias('pro')
             ->join('store_pro_images i','pro.id = i.p_id','LEFT')
             ->where($con.' and pro.on_sale = 1 and pro.status = 1 and i.status = 1 and pro.is_jf_product = 0')

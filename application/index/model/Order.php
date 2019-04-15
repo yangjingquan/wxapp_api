@@ -606,22 +606,27 @@ class Order extends Model{
             exit;
         }
 
-        //设置副订单表字段
-        $sub_data = [
-            'main_id'  => $main_res,
-            'pro_id'  => $pro_info['pro_id'],
-            'count'  => $pro_info['count'],
-            'rec_rate'  => $pro_info['rec_rate'],
-            'unit_price'  => $pro_info['associator_price'],
-            'amount'  => $pro_info['count'] * $pro_info['associator_price'],
-            'rec_amount'  => ($pro_info['count'] * $pro_info['associator_price']) * $pro_info['rec_rate']
-        ];
+        $sub_data = array();
+        $cart_ids = '';
+        foreach($pro_info as $val){
+            //设置副订单表字段
+            $temp_sub_data = [
+                'main_id'  => $main_res,
+                'pro_id'  => $val['pro_id'],
+                'count'  => $val['count'],
+                'rec_rate'  => $val['rec_rate'],
+                'unit_price'  => $val['associator_price'],
+                'amount'  => $val['count'] * $val['associator_price'],
+                'rec_amount'  => ($val['count'] * $val['associator_price']) * $val['rec_rate']
+            ];
+            array_push($sub_data,$temp_sub_data);
 
-        //设置接收的购物车表信息
-        $cart_ids = $pro_info['cart_id'];
+            //设置接收的购物车表信息
+            $cart_ids .= $val['cart_id'].',';
+        }
 
         //向副表添加数据
-        $sub_res = Db::table('store_sub_orders')->insert($sub_data);
+        $sub_res = Db::table('store_sub_orders')->insertAll($sub_data);
         if(!$sub_res){
             echo json_encode(array(
                 'statuscode'  => 0,
@@ -629,10 +634,11 @@ class Order extends Model{
             ));
             exit;
         }
-
+        //格式化购物车表信息
+        $cart_ids = substr($cart_ids,0,-1);
         //更改对应购物车信息状态
         $cart_data['status'] = 0;
-        $update_cart_res = Db::table('store_shopping_carts')->where("id = ".$cart_ids)->update($cart_data);
+        $update_cart_res = Db::table('store_shopping_carts')->where("id in ($cart_ids)")->update($cart_data);
         if(!$update_cart_res){
             echo json_encode(array(
                 'statuscode'  => 0,

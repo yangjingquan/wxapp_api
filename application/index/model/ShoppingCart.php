@@ -652,11 +652,14 @@ class ShoppingCart extends Model
             ->join('store_products pro', 'con.pro_id = pro.id', 'LEFT')
             ->join('store_pro_images img', 'img.p_id = pro.id', 'LEFT')
             ->where($where)
-            ->find();
-        if ($pro_res['associator_price'] < '0.01') {
-            $pro_res['jf_price'] = $pro_res['ex_jifen'] . '积分';
-        } else {
-            $pro_res['jf_price'] = $pro_res['ex_jifen'] . '积分' . ' + ' . $pro_res['associator_price'] . '元';
+            ->select();
+
+        foreach ($pro_res as &$item){
+            if ($item['associator_price'] < '0.01') {
+                $item['jf_price'] = $item['ex_jifen'] . '积分';
+            } else {
+                $item['jf_price'] = $item['ex_jifen'] . '积分' . ' + ' . $item['associator_price'] . '元';
+            }
         }
 
 
