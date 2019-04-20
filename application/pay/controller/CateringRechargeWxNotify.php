@@ -61,13 +61,13 @@ class CateringRechargeWxNotify extends \WxPayNotify{
             if($jifen > 0){
                 //更新会员积分
                 Db::table('cy_members')->where("mem_id = '$openid'")->setInc('jifen',$jifen);
-                //更新会员余额
-                Db::table('cy_members')->where("mem_id = '$openid'")->setInc('balance',$total_amount);
+
                 //生成积分明细
                 $this->createJifenDetail($openid,$jifen,$orderNo);
             }
         }
-
+        //更新会员余额
+        Db::table('cy_members')->where("mem_id = '$openid'")->setInc('balance',$total_amount);
         return true;
     }
 

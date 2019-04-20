@@ -64,10 +64,9 @@ class RechargeWxNotify extends \WxPayNotify{
                 //生成积分明细
                 $this->createJifenDetail($openid,$jifen,$orderNo);
             }
-            //更新会员余额
-            Db::table('cy_members')->where("mem_id = '$openid'")->setDec('balance',$with_balance_amount);
         }
-
+        //更新会员余额
+        Db::table('store_members')->where("mem_id = '$openid'")->setInc('balance',$total_amount);
         return true;
     }
 
