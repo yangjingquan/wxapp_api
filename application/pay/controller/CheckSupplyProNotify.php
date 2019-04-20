@@ -30,10 +30,11 @@ class CheckSupplyProNotify extends \WxPayNotify{
                 $totalAmount = $outMainOrderInfo['total_amount'];
                 $openId = $outMainOrderInfo['mem_id'];
                 $orderType = $outMainOrderInfo['order_type'];
+                $with_balance_amount = $outMainOrderInfo['with_balance_amount'];
 
                 if($orderType == 1){
                     //普通商品购买后，增加对应积分
-                    $this->addJifen($mainId,$orderNo,$openId);
+                    $this->addJifen($mainId,$orderNo,$openId,$with_balance_amount);
                 }else{
                     //积分商城购买后减去订单产生的积分
                     $this->subJifen($mainId,$orderNo,$openId);
@@ -181,7 +182,7 @@ class CheckSupplyProNotify extends \WxPayNotify{
     }
 
     //付款成功后添加积分
-    public function addJifen($order_id,$order_no,$openid){
+    public function addJifen($order_id,$order_no,$openid,$with_balance_amount){
         //查询该订单产生的积分
         $jifen = Db::table('store_sub_orders')->alias('sub')->field('pro.id as pro_id')
             ->join('store_pro_config con','sub.pro_id = con.id','LEFT')
@@ -192,7 +193,8 @@ class CheckSupplyProNotify extends \WxPayNotify{
         //更新会员积分
         $mem_where = "mem_id = '$openid' and status = 1";
         Db::table('store_members')->where($mem_where)->setInc('jifen',$jifen);
-
+        //更新会员余额
+        Db::table('store_members')->where($mem_where)->setDec('balance',$with_balance_amount);
         //生成积分明细记录
         $jf_data = [
             'mem_id'  => $openid,

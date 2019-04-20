@@ -5,9 +5,9 @@ use think\Db;
 use think\Loader;
 use think\Log;
 
-Loader::import('OriWxPay.WxPayApi',EXTEND_PATH);
+Loader::import('CateringWxPay.WxPayApi',EXTEND_PATH);
 
-class RechargeWxPay extends Controller{
+class CateringRechargeWxPay extends Controller{
 
     public function __construct()
     {
@@ -18,7 +18,7 @@ class RechargeWxPay extends Controller{
         }
         $bis_id = $param['bis_id'];
         //获取db中配置内容
-        $cfgRes = Db::table('store_bis')->field('appid,mchid,key,recharge_notify_url')->where('id = '.$bis_id)->find();
+        $cfgRes = Db::table('cy_bis')->field('appid,mchid,key,recharge_notify_url')->where('id = '.$bis_id)->find();
         //设置配置内容
         $WxPayConfig = new \OriWxPayConfig();
         $WxPayConfig::$appid = $cfgRes['appid'];

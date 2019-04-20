@@ -12,9 +12,9 @@ use think\Exception;
 use think\Loader;
 use think\Log;
 
-Loader::import('OriWxPay.WxPayApi',EXTEND_PATH);
+Loader::import('CateringWxPay.WxPayApi',EXTEND_PATH);
 
-class RechargeWxNotify extends \WxPayNotify{
+class CateringRechargeWxNotify extends \WxPayNotify{
 
     public function NotifyProcess($data, &$msg){
         if($data['result_code'] == 'SUCCESS'){
@@ -53,17 +53,16 @@ class RechargeWxNotify extends \WxPayNotify{
     //会员增加积分和余额
     public function addJifenAndBalance($bisId,$openid,$total_amount,$orderNo){
         //获取积分比例
-        $bisInfo = Db::table('store_bis')->where('id = '.$bisId)->find();
+        $bisInfo = Db::table('cy_bis')->where('id = '.$bisId)->find();
         $jifen_ratio = $bisInfo['mem_jifen_ratio'];
         if($jifen_ratio > 0){
             //可获得积分
             $jifen = floor($total_amount / $jifen_ratio);
-            $jifen = 50;
             if($jifen > 0){
                 //更新会员积分
-                Db::table('store_members')->where("mem_id = '$openid'")->setInc('jifen',$jifen);
+                Db::table('cy_members')->where("mem_id = '$openid'")->setInc('jifen',$jifen);
                 //更新会员余额
-                Db::table('store_members')->where("mem_id = '$openid'")->setInc('balance',$total_amount);
+                Db::table('cy_members')->where("mem_id = '$openid'")->setInc('balance',$total_amount);
                 //生成积分明细
                 $this->createJifenDetail($openid,$jifen,$orderNo);
             }

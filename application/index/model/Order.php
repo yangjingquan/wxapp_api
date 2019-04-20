@@ -1,5 +1,6 @@
 <?php
 namespace app\index\model;
+use app\api\service\CheckService;
 use think\Model;
 use think\Db;
 
@@ -31,7 +32,7 @@ class Order extends Model{
         }
         $where .= $con;
 
-        $res = Db::table('store_main_orders')->alias('main')->field('main.id as order_id,main.order_no,main.total_amount,main.order_status,main.express_no,mode.post_code,mode.post_mode,main.jifen')
+        $res = Db::table('store_main_orders')->alias('main')->field('main.id as order_id,main.order_no,main.total_amount,main.order_status,main.express_no,mode.post_code,mode.post_mode,main.jifen,main.with_balance_amount')
             ->join('store_post_mode mode','main.mode = mode.id','LEFT')
             ->where($where)
             ->order('main.create_time desc')
@@ -51,6 +52,7 @@ class Order extends Model{
             $result[$index]['order_id'] = $val['order_id'];
             $result[$index]['order_no'] = $val['order_no'];
             $result[$index]['amount'] = $val['total_amount'];
+            $result[$index]['with_balance_amount'] = $val['with_balance_amount'];
             $result[$index]['status'] = $val['order_status'];
 
             switch($val['order_status']){
@@ -432,6 +434,7 @@ class Order extends Model{
         $address = !empty($param['address']) ? $param['address'] : '';
         $id_no = !empty($param['id_no']) ? $param['id_no'] : '';
         $total_amount = !empty($param['total_amount']) ? $param['total_amount'] : '';
+        $with_balance_amount = !empty($param['with_balance_amount']) ? $param['with_balance_amount'] : '';
         $remark = !empty($param['remark']) ? $param['remark'] : '';
         $pro_amount = !empty($param['pro_amount']) ? $param['pro_amount'] : '';
         $transport_fee = !empty($param['transport_fee']) ? $param['transport_fee'] : '';
@@ -464,6 +467,7 @@ class Order extends Model{
             'payment'  => 1,
             'order_no'  => substr(date('Y'),2,2).date('m').date('d').date('H').date('i').date('s').$new_bis_id.rand(1000,9999),
             'total_amount'  => $total_amount,
+            'with_balance_amount'  => $with_balance_amount,
             'create_time'  => $create_time,
             'pro_total_amount'  => $pro_amount,
             'transport_fee'  => $transport_fee,
@@ -471,7 +475,7 @@ class Order extends Model{
             'appid'  => $appid,
             'secret'  => $secret,
             'update_time'  => $update_time,
-            'order_status'  => 2,
+            'order_status'  => $total_amount == 0 ? 3 : 2,
             'remark'  => $remark,
             'order_type'  => self::ORI_ORDER_TYPE
         ];
@@ -1176,5 +1180,31 @@ class Order extends Model{
             $index ++;
         }
         return $res;
+    }
+
+    //生成充值订单
+    public function makeRechargeOrder($param){
+        //校验数据
+        CheckService::checkEmpty($param['bis_id'],'店铺id');
+        CheckService::checkEmpty($param['openid'],'用户openid');
+        CheckService::checkEmpty($param['amount'],'充值金额');
+
+        $rechargeId = 're'.date('Y').date('m').date('d').date('H').date('i').date('s').rand(100000,999999);
+
+        $data = [
+            'bis_id' => $param['bis_id'],
+            'openid' => $param['openid'],
+            'bis_type' => 1,
+            'amount' => $param['amount'],
+            'recharge_id'  => $rechargeId,
+            'recharge_status'  => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        $res = Db::table('store_member_recharge_records')->insertGetId($data);
+
+        return $res;
+
     }
 }

@@ -1,9 +1,9 @@
 <?php
 namespace app\index\controller;
-use think\Controller;
 use think\Db;
+use think\Exception;
 
-class Order extends Controller{
+class Order extends Base{
 
     //获取订单信息(普通商城版)
     public function getOrderInfo(){
@@ -494,7 +494,17 @@ class Order extends Controller{
         }
     }
 
-    //支付成功后
+    //生成充值订单
+    public function makeRechargeOrder(){
+        //接收参数
+        $param = input('post.');
+        try{
+            $res = Model('Order')->makeRechargeOrder($param);
+        }catch (Exception $e) {
+            return $this->render(false, $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+        }
+        return $this->render($res);
+    }
 
 }
 

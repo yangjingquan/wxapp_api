@@ -2,6 +2,7 @@
 namespace app\catering\model;
 use think\Model;
 use think\Db;
+use app\api\service\CheckService;
 
 class Order extends Model{
 
@@ -37,6 +38,9 @@ class Order extends Model{
                 $result[$index]['bis_name'] = $val['bis_name'];
 
                 switch($val['order_status']){
+                    case 0:
+                        $status_text =  '未确认';
+                        break;
                     case 1:
                         $status_text =  '已点餐';
                         break;
@@ -91,8 +95,10 @@ class Order extends Model{
         $openid = !empty($param['openid']) ? $param['openid'] : '';
         $table = !empty($param['table']) ? $param['table'] : '';
         $total_amount = !empty($param['total_amount']) ? $param['total_amount'] : '';
+        $with_balance_amount = !empty($param['with_balance_amount']) ? $param['with_balance_amount'] : '';
         $remark = !empty($param['remark']) ? $param['remark'] : '';
         $pro_info = !empty($param['cart_info']) ? $param['cart_info'] : '';
+        $order_status = !empty($param['order_status']) ? $param['order_status'] : '';
         $create_time = date('Y-m-d H:i:s');
         $update_time = date('Y-m-d H:i:s');
 
@@ -114,9 +120,10 @@ class Order extends Model{
             'table_id'  => $table,
             'order_no'  => '90'.substr(date('Y'),2,2).date('m').date('d').date('H').date('i').date('s').$new_bis_id.rand(1000,9999),
             'total_amount'  => $total_amount,
+            'with_balance_amount'  => $with_balance_amount,
             'create_time'  => $create_time,
             'update_time'  => $update_time,
-            'order_status'  => 1,
+            'order_status'  => $order_status,
             'remark'  => $remark
         ];
 
@@ -388,5 +395,31 @@ class Order extends Model{
             exit;
         }
         return $res;
+    }
+
+    //生成充值订单
+    public function makeRechargeOrder($param){
+        //校验数据
+        CheckService::checkEmpty($param['bis_id'],'店铺id');
+        CheckService::checkEmpty($param['openid'],'用户openid');
+        CheckService::checkEmpty($param['amount'],'充值金额');
+
+        $rechargeId = 're'.date('Y').date('m').date('d').date('H').date('i').date('s').rand(100000,999999);
+
+        $data = [
+            'bis_id' => $param['bis_id'],
+            'openid' => $param['openid'],
+            'bis_type' => 2,
+            'amount' => $param['amount'],
+            'recharge_id'  => $rechargeId,
+            'recharge_status'  => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        $res = Db::table('store_member_recharge_records')->insertGetId($data);
+
+        return $res;
+
     }
 }

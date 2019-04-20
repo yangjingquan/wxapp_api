@@ -2,8 +2,9 @@
 namespace app\index\controller;
 use think\Controller;
 use think\Db;
+use think\Exception;
 
-class Members extends Controller{
+class Members extends Base{
 
     //添加会员信息
     public function addMembers(){
@@ -31,6 +32,31 @@ class Members extends Controller{
 
         $res = model('Members')->checkRecStatusMulti($param);
     }
+
+    //获取个人信息
+    public function getMemberInfo(){
+        //接收参数
+        $param = input('post.');
+        try{
+            $res = Model('Members')->getMemberInfo($param);
+        }catch (Exception $e) {
+            return $this->render(false, $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+        }
+        return $this->render($res);
+    }
+
+    //更新余额
+    public function subBalance(){
+        //接收参数
+        $param = input('post.');
+        try{
+            $res = Model('Members')->subBalance($param);
+        }catch (Exception $e) {
+            return $this->render(false, $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+        }
+        return $this->render($res);
+    }
+
 }
 
 

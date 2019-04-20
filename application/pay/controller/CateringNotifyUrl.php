@@ -41,6 +41,12 @@ class CateringNotifyUrl extends Controller{
         $notify->Handle();
     }
 
+    //餐饮充值支付回调
+    public function cateringRechargeWxNotify(){
+        $notify = new CateringRechargeWxNotify();
+        $notify->Handle();
+    }
+
     //获取店铺微信支付的key，并赋值给配置文件中的$key
     public function getAndSetKey($bis_id){
         //获取db中配置内容

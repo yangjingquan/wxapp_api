@@ -2,6 +2,8 @@
 namespace app\catering\model;
 use think\Model;
 use think\Db;
+use app\api\service\CheckService;
+use think\Exception;
 
 class Members extends Model{
     //添加会员信息
@@ -37,6 +39,35 @@ class Members extends Model{
             exit;
         }
 
+        return $res;
+    }
+
+    //获取会员信息
+    public function getMemberInfo($param){
+        CheckService::checkEmpty($param['openid']);
+        CheckService::checkEmpty($param['bis_id']);
+
+        $where = "mem_id = '".$param['openid']."' and bis_id = ".$param['bis_id']." and status = 1";
+        $res = Db::table('cy_members')->where($where)->find();
+
+        if(empty($res)){
+            throw new Exception('获取会员信息失败',-1);
+        }
+        return $res;
+    }
+
+    //更新余额
+    public function subBalance($param){
+        CheckService::checkEmpty($param['openid']);
+        CheckService::checkEmpty($param['bis_id']);
+        CheckService::checkEmpty($param['with_balance_amount']);
+
+        $where = "mem_id = '".$param['openid']."' and bis_id = ".$param['bis_id'];
+        $res = Db::table('cy_members')->where($where)->setDec('balance',$param['with_balance_amount']);
+
+        if(empty($res)){
+            throw new Exception('更新会员信息失败',-1);
+        }
         return $res;
     }
 

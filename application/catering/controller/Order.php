@@ -1,9 +1,11 @@
 <?php
 namespace app\catering\controller;
+use app\index\controller\Base;
 use think\Controller;
 use think\Db;
+use think\Exception;
 
-class Order extends Controller{
+class Order extends Base{
 
     //获取点餐/外卖订单信息
     public function getNormalOrderInfo(){
@@ -98,6 +100,18 @@ class Order extends Controller{
             'result'      => $res
         ));
         exit;
+    }
+
+    //生成充值订单
+    public function makeRechargeOrder(){
+        //接收参数
+        $param = input('post.');
+        try{
+            $res = Model('Order')->makeRechargeOrder($param);
+        }catch (Exception $e) {
+            return $this->render(false, $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+        }
+        return $this->render($res);
     }
 
 }

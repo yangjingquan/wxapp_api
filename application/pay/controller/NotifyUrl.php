@@ -31,6 +31,12 @@ class NotifyUrl extends Controller{
         $WxPayConfig = new \OriWxPayConfig();
         $WxPayConfig::$key = $cfgRes['key'];
     }
+
+    //充值回调
+    public function rechargeWxNotify(){
+        $notify = new RechargeWxNotify();
+        $notify->Handle();
+    }
 }
 
 

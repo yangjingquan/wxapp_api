@@ -3,6 +3,7 @@ namespace app\api\service;
 use think\Exception;
 
 class CheckService{
+
     public static function checkEmpty($value,$name='数据')
     {
         if(empty($value)){
