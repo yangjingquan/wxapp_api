@@ -67,8 +67,22 @@ class CateringOriWxNotify extends \WxPayNotify{
                 $this->createJifenDetail($openid,$jifen,$orderNo);
             }
         }
-        //更新会员余额
-        Db::table('cy_members')->where("mem_id = '$openid'")->setDec('balance',$with_balance_amount);
+        if($with_balance_amount > '0.00'){
+            //更新会员余额
+            Db::table('cy_members')->where("mem_id = '$openid'")->setDec('balance',$with_balance_amount);
+            //生成余额消费记录
+            $balanceData = [
+                'bis_id'  => $bisId,
+                'openid'  => $openid,
+                'bis_type'  => 2,
+                'amount'  => $with_balance_amount,
+                'type'  => 2,
+                'recharge_status'  => 2,
+                'created_at'  => date('Y-m-d H:i:s'),
+                'updated_at'  => date('Y-m-d H:i:s')
+            ];
+            Db::table('store_member_recharge_records')->insert($balanceData);
+        }
         return true;
     }
 

@@ -68,7 +68,7 @@ class RechargeWxPay extends Controller{
     }
 
     //该方法内部调用微信预订单接口
-    private function getPaySignature($order_id,$wxOrderData,$bis_id){
+    private function getPaySignature($order_id,$wxOrderData){
         //$wxOrder是微信返回的结果
         $wxOrder = \WxPayApi::unifiedOrder($wxOrderData);
         //判断代码

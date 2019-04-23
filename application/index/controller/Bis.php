@@ -672,6 +672,47 @@ class Bis extends Controller{
         $res = Db::table('store_sub_orders')->where($where)->update($data);
         return $res;
     }
+
+    //余额明细
+    public function getBalanceDetail(){
+        //接收参数
+        $openid = input('post.openid');
+        $page = input('post.page',1,'intval');
+        $limit = 10;
+        $offset = $limit * ($page - 1);
+
+        $where = "mem_id = '$openid'";
+        $bisRes = Db::table('store_members')->field('balance')->where($where)->find();
+        $balance = $bisRes['balance'];
+
+        $recordsWhere = "openid = '$openid' and recharge_status = 2 and bis_type = 1";
+        $res = Db::table('store_member_recharge_records')
+            ->where($recordsWhere)
+            ->limit($offset,$limit)
+            ->order('created_at desc')
+            ->select();
+
+        $ind = 0;
+        foreach($res as $val){
+            $res[$ind]['amount'] = floatval($val['amount']);
+            $ind ++;
+        }
+
+        $count = count($res);
+        if($count < $limit){
+            $has_more = false;
+        }else{
+            $has_more = true;
+        }
+
+        echo json_encode(array(
+            'statuscode'  => 1,
+            'result'      => $res,
+            'balance'      => $balance,
+            'has_more'    => $has_more
+        ));
+        exit;
+    }
 }
 
 

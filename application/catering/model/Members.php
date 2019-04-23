@@ -62,8 +62,28 @@ class Members extends Model{
         CheckService::checkEmpty($param['bis_id']);
         CheckService::checkEmpty($param['with_balance_amount']);
 
-        $where = "mem_id = '".$param['openid']."' and bis_id = ".$param['bis_id'];
-        $res = Db::table('cy_members')->where($where)->setDec('balance',$param['with_balance_amount']);
+        Db::startTrans();
+        try{
+            $where = "mem_id = '".$param['openid']."' and bis_id = ".$param['bis_id'];
+            $res = Db::table('cy_members')->where($where)->setDec('balance',$param['with_balance_amount']);
+
+            //生成余额变动记录
+            $balanceData = [
+                'bis_id'  => $param['bis_id'],
+                'openid'  => $param['openid'],
+                'bis_type'  => 2,
+                'amount'  => $param['with_balance_amount'],
+                'type'  => 2,
+                'recharge_status'  => 2,
+                'created_at'  => date('Y-m-d H:i:s'),
+                'updated_at'  => date('Y-m-d H:i:s')
+            ];
+            Db::table('store_member_recharge_records')->insert($balanceData);
+
+            Db::commit();
+        }catch (Exception $e){
+            Db::rollback();
+        }
 
         if(empty($res)){
             throw new Exception('更新会员信息失败',-1);
