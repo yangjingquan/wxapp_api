@@ -1,13 +1,13 @@
 <?php
-namespace app\pay\controller;
+namespace app\reservepay19\controller;
 use think\Controller;
 use think\Db;
 use think\Loader;
 use think\Log;
 
-Loader::import('CurWxPay.WxPayApi',EXTEND_PATH);
+Loader::import('ReserveCateringWxPay.WxPayApi',EXTEND_PATH);
 
-class RechargeWxPay extends Controller{
+class CateringCollectWxPay extends Controller{
 
     public function __construct()
     {
@@ -18,13 +18,14 @@ class RechargeWxPay extends Controller{
         }
         $bis_id = $param['bis_id'];
         //获取db中配置内容
-        $cfgRes = Db::table('store_bis')->field('appid,mchid,key,recharge_notify_url')->where('id = '.$bis_id)->find();
+        $cfgRes = Db::table('cy_bis')->field('appid,mchid,key,collect_notify_url as notify_url')->where('id = '.$bis_id)->find();
+
         //设置配置内容
         $WxPayConfig = new \OriWxPayConfig();
         $WxPayConfig::$appid = $cfgRes['appid'];
         $WxPayConfig::$mch_id = $cfgRes['mchid'];
         $WxPayConfig::$key = $cfgRes['key'];
-        $WxPayConfig::$notify_url = $cfgRes['recharge_notify_url'];
+        $WxPayConfig::$notify_url = $cfgRes['notify_url'];
     }
 
     public function pay(){
@@ -52,9 +53,9 @@ class RechargeWxPay extends Controller{
         $WxPayConfig = new \OriWxPayConfig();
         //获取参数
         $tradeRes = $this->getOutTradeInfoById($param['order_id']);
-        $trade_no = $tradeRes['recharge_id'];
+        $trade_no = $tradeRes['order_no'];
         $body = $param['body'];
-        $total_fee = $tradeRes['amount'];
+        $total_fee = $tradeRes['total_amount'];
         $notify_url = $WxPayConfig::$notify_url;
         $openid = $param['openid'];
         $wxOrderData = new \WxPayUnifiedOrder();
@@ -68,7 +69,7 @@ class RechargeWxPay extends Controller{
     }
 
     //该方法内部调用微信预订单接口
-    private function getPaySignature($order_id,$wxOrderData){
+    private function getPaySignature($order_id,$wxOrderData,$bis_id){
         //$wxOrder是微信返回的结果
         $wxOrder = \WxPayApi::unifiedOrder($wxOrderData);
         //判断代码
@@ -103,12 +104,12 @@ class RechargeWxPay extends Controller{
     //处理 prepay_id,把 prepay_id存入数据库
     private function recordPreOrder($order_id,$wxOrder){
         $data['prepay_id'] = $wxOrder['prepay_id'];
-        $res = Db::table('store_member_recharge_records')->where('id = '.$order_id)->update($data);
+        $res = Db::table('cy_pay_orders')->where('id = '.$order_id)->update($data);
     }
 
     //根据外部订单id获取相关信息
     public function getOutTradeInfoById($order_id){
-        $res = Db::table('store_member_recharge_records')->field('recharge_id,amount')->where('id = '.$order_id)->find();
+        $res = Db::table('cy_pay_orders')->field('order_no,total_amount')->where('id = '.$order_id)->find();
         return $res;
     }
 

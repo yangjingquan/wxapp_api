@@ -288,7 +288,21 @@ class Order extends Model{
                 ->where('id = '.$order_id)
                 ->find();
 
-
+        switch($res['order_status']){
+            case 0:
+                $status_text =  '未确认';
+                break;
+            case 1:
+                $status_text =  '已点餐';
+                break;
+            case 2:
+                $status_text =  '已付款';
+                break;
+            default:
+                $status_text =  '已完成';
+                break;
+        }
+        $res['status_text'] = $status_text;
         $res['pro_info'] = $this->getSubOrderInfo($res['main_id']);
         return $res;
     }
