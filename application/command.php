@@ -9,8 +9,4 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-return [
-    'app\\command\\daemon\\Test',
-    'app\\command\\daemon\\TestCron',
-
-];
+return [];

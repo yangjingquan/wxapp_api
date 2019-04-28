@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>大转盘抽奖</title>
+		<meta charset="utf-8">
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="renderer" content="webkit">
+		<link rel="stylesheet" type="text/css" href="__STATIC__/dzp/css/reset.css" />
+		<style>
+			.g-content {
+				width: 100%;
+				background: #fbe3cc;
+				height: auto;
+				font-family: "微软雅黑", "microsoft yahei";
+			}
+			.g-content .g-lottery-case {
+				width: 500px;
+				height: 800px;
+				margin: 0 auto;
+				overflow: hidden;
+			}
+			
+			.g-content .g-lottery-case .g-left h2 {
+				font-size: 20px;
+				line-height: 32px;
+				font-weight: normal;
+				text-align:center;
+				
+			}
+			
+			.g-content .g-lottery-case .g-left {
+				width: 400px;
+				float: left;
+				margin-top: 30px;
+			}
+			
+			.g-lottery-box {
+				width: 350px;
+				height: 350px;
+				left: 15px;
+				top:30px;
+				position: relative;
+				background: url(__STATIC__/dzp/img/lottery/ly-plate-c1.gif) no-repeat;
+			}
+			
+			.g-lottery-box .g-lottery-img {
+				width: 280px;
+				height: 280px;
+				position: relative;
+				background: url(__STATIC__/dzp/img/lottery/bg-lottery1.png) no-repeat;
+				left: 35px;
+				top: 35px;
+			}
+			
+			.g-lottery-box .playbtn {
+				width: 166px;
+				height: 166px;
+				position: absolute;
+				top: 55px;
+				left: 61px;
+				background: url(__STATIC__/dzp/img/lottery/playbtn1.png) no-repeat;
+			}
+			.btn {
+				  background: #3498db;
+				  background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+				  background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+				  background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+				  background-image: -o-linear-gradient(top, #3498db, #2980b9);
+				  background-image: linear-gradient(to bottom, #3498db, #2980b9);
+				  -webkit-border-radius: 28;
+				  -moz-border-radius: 28;
+				  border-radius: 28px;
+				  text-shadow: 1px 1px 3px #666666;
+				  font-family: 微软雅黑;
+				  color: #ffffff;
+				  font-size: 18px;
+				  padding: 8px 40px 8px 40px;
+				  background: #3498db;
+				  border: solid #1f628d 1px;
+				  text-decoration: none;
+				}
+
+			.btn:hover {
+				  background: #2980b9;
+				  background-image: -webkit-linear-gradient(top, #2980b9, #3498db);
+				  background-image: -moz-linear-gradient(top, #2980b9, #3498db);
+				  background-image: -ms-linear-gradient(top, #2980b9, #3498db);
+				  background-image: -o-linear-gradient(top, #2980b9, #3498db);
+				  background-image: linear-gradient(to bottom, #2980b9, #3498db);
+				  color: #ffffff;
+				  text-decoration: none;
+				}
+		</style>
+	</head>
+
+	<body>
+	<script src="https://res.wx.qq.com/open/js/jweixin-1.3.0.js"></script>
+	<script type="text/javascript" src="__STATIC__/dzp/js/jquery.js"></script>
+    <script>
+	$(function(){
+	    $('#btn').on('click',function(s) {
+	        wx.miniProgram.switchTab({
+	            url:'/pages/index/index',
+	            success: function(){
+	                console.log('success')
+	            },
+	            fail: function(){
+	                console.log('fail');
+	            },
+	            complete:function(){
+	                console.log('complete');
+	            }
+
+	            });
+	    });
+    });
+    </script>
+
+		<div class="g-content">
+			<div class="g-lottery-case">
+				<div class="g-left">
+					{volist name="res" id="vo"}
+					<h2><button type="button" id="btn" class="btn">返回首页</button></h2>
+					<h2>亲爱的{$vo.nickname},</h2>
+					<h2>您拥有<font color="#ff0000"><span class="playnum"></span></font>次抽奖机会！</h2>
+
+					{/volist}
+					
+					<div class="g-lottery-box">
+						<div class="g-lottery-img">
+							<a class="playbtn" href="javascript:;" title="开始抽奖"></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="__STATIC__/dzp/js/jquery-1.8.3.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="__STATIC__/dzp/js/jquery.rotate.min.js"></script>
+		<script>
+			{volist name="res" id="vo"}
+			$(function() {
+				var $btn = $('.playbtn');
+				var playnum = {$vo.dzp_ci}; //初始次数，由后台传入
+				
+				$('.playnum').html(playnum);
+				var isture = 0;
+				var clickfunc = function() {
+					{volist name="res_bis" id="res_bis"}
+					var data = [{$res_bis.dzp}];
+					{/volist}
+					//data为随机出来的结果，根据概率后的结果
+					data = data[Math.floor(Math.random() * data.length)];
+					switch(data) {
+						{volist name="res_jp" id="res_jp"}
+						case {$res_jp.jp_id}:
+							rotateFunc({$res_jp.jp_id}, {$res_jp.jiaodu}, '{$res_jp.jp_name}');
+							jiangpin={$res_jp.jp_id};
+							break;
+						{/volist}	
+					}
+				}
+				$btn.click(function() {
+					if(isture) return; // 如果在执行就退出
+					isture = true; // 标志为 在执行
+					//先判断是否登录,未登录则执行下面的函数
+					if(1 == 2) {
+						$('.playnum').html('0');
+						alert("请先登录");
+						isture = false;
+					} else { //登录了就执行下面
+						if(playnum <= 0) { //当抽奖次数为0的时候执行
+							alert("没有次数了");
+							$('.playnum').html(0);
+							isture = false;
+						} else { //还有次数就执行
+							playnum = playnum - 1; //执行转盘了则次数减1
+							if(playnum <= 0) {
+								playnum = 0;
+							}
+							$('.playnum').html(playnum);
+							clickfunc();
+						}
+					}
+				});
+				var rotateFunc = function(awards, angle, text) {
+					isture = true;
+					$btn.stopRotate();
+					$btn.rotate({
+						angle: 0,
+						duration: 4000, //旋转时间
+						animateTo: angle + 1440, //让它根据得出来的结果加上1440度旋转
+						callback: function() {
+							isture = false; // 标志为 执行完毕
+							alert(text);
+							window.location.href="save?id={$vo.id}&bis_id={$vo.bis_id}&dzp_ci="+playnum+"&jiangpin="+jiangpin+""     
+						}
+					});
+				};
+			});
+			{/volist}
+		</script>
+	</body>
+
+</html>

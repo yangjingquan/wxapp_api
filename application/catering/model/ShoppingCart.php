@@ -304,7 +304,7 @@ class ShoppingCart extends Model
                 $item['jf_price'] = $item['ex_jifen'] . '积分' . ' + ' . $item['associator_price'] . '元';
             }
         }
-
+        
         $jifen_amount = Db::table('cy_shopping_carts')->alias('carts')
             ->join('cy_mall_pro_config con', 'carts.pro_id = con.id', 'LEFT')
             ->join('cy_mall_products pro', 'con.pro_id = pro.id', 'LEFT')

@@ -112,6 +112,14 @@ class OriWxPay extends Controller{
         return $res;
     }
 
+    //支付回调
+    public function receiveNotify(){
+        $notify = new WxNotify();
+        log::error('into receiveNotify method');
+        $notify->Handle();
+        log::error('out receiveNotify method');
+    }
+
 }
 
 

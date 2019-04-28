@@ -83,7 +83,7 @@ return [
     // URL伪静态后缀
     'url_html_suffix'        => 'html',
     // URL普通方式参数 用于自动生成
-    'url_common_param'       => false,
+    'url_common_param'       => true,
     // URL参数方式 0 按名称成对解析 1 按顺序解析
     'url_param_type'         => 0,
     // 是否开启路由
@@ -99,7 +99,7 @@ return [
     // 域名根，如thinkphp.cn
     'url_domain_root'        => '',
     // 是否自动转换URL中的控制器和操作名
-    'url_convert'            => true,
+    'url_convert'            => false,
     // 默认的访问控制器层
     'url_controller_layer'   => 'controller',
     // 表单请求类型伪装变量
@@ -181,24 +181,24 @@ return [
     // | 缓存设置
     // +----------------------------------------------------------------------
 
-//    'cache'                  => [
-//        // 驱动方式
-//        'type'   => 'File',
-//        // 缓存保存目录
-//        'path'   => CACHE_PATH,
-//        // 缓存前缀
-//        'prefix' => '',
-//        // 缓存有效期 0表示永久缓存
-//        'expire' => 0,
-//    ],
+   'cache'                  => [
+       // 驱动方式
+       'type'   => 'File',
+       // 缓存保存目录
+       'path'   => CACHE_PATH,
+       // 缓存前缀
+       'prefix' => '',
+       // 缓存有效期 0表示永久缓存
+       'expire' => 0,
+   ],
 
-    'cache'                  => [
-        // 驱动方式
-        'type'   => 'redis',
-        // 服务器地址
-        'host'   => '127.0.0.1'
+    // 'cache'                  => [
+    //     // 驱动方式
+    //     'type'   => 'redis',
+    //     // 服务器地址
+    //     'host'   => '127.0.0.1'
 
-    ],
+    // ],
 
     // +----------------------------------------------------------------------
     // | 会话设置
@@ -242,6 +242,5 @@ return [
         'var_page'  => 'page',
         'list_rows' => 15,
     ],
-    'token_salt' => 'siweishop_salt',
-    'sys_crond_timer' => array('*', '*:i', 'H:i', '@-w H:i', '*-d H:i', 'm-d H:i', 'Y-m-d H:i'),
+    'token_salt' => 'siweishop_salt'
 ];

@@ -748,27 +748,4 @@ class Test extends Base
 
         return $this->render($res);
     }
-
-
-    //会员增加积分
-    public function addJifen(){
-        $bisId = input('post.bis_id');
-        $openid = input('post.openid');
-        $total_amount = input('post.total_amount');
-        //获取积分比例
-        $bisInfo = Db::table('cy_bis')->where('id = '.$bisId)->find();
-
-        $jifen_ratio = $bisInfo['jifen_ratio'];
-
-        if($jifen_ratio > 0){
-            //可获得积分
-            $jifen = floor($total_amount / $jifen_ratio);
-            if($jifen > 0){
-                //更新会员积分
-                Db::table('cy_members')->where("mem_id = '$openid'")->setInc('jifen',$jifen);
-            }
-        }
-
-        return true;
-    }
 }
